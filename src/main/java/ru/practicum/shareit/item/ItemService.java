@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.exception.ArgumentNotValidException;
+import ru.practicum.shareit.exception.ObjectNotFountException;
 import ru.practicum.shareit.exception.ValidationException;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.mapper.ItemMapper;
@@ -24,29 +25,29 @@ public class ItemService {
     private final UserService userService;
     private final ItemRepository itemRepository;
 
-    public ItemDto createItem(ItemDto itemDto, Long id) throws ValidationException {
+    public ItemDto createItem(ItemDto itemDto, Long id) throws ObjectNotFountException {
         User user = userService.getUserById(id); // проверяем что пользователь с таким id существует
         return itemRepository.createItem(itemDto, user);
     }
 
 
-    public ItemDto updateItem(ItemDto itemDto, Long id) throws ValidationException, ArgumentNotValidException {
-        userService.getUserById(id); // проверяем что пользователь с таким id существует
-        Item item = itemRepository.getItems().get(itemDto.getId());
-        if (!Objects.equals(item.getOwner().getId(), id)) { // проверяем что передан id владельца в заголовке
-            log.warn("ItemService.updateItem: Указан неверный id {} владельца вещи", id);
-            throw new ArgumentNotValidException("Указан неверный id " + id + " владельца вещи");
+    public ItemDto updateItem(ItemDto itemDto, Long id, Long userId) throws ObjectNotFountException {
+        userService.getUserById(userId); // проверяем что пользователь с таким id существует
+        Item item = itemRepository.getItems().get(id);
+        if (!Objects.equals(item.getOwner().getId(), userId)) { // проверяем что передан id владельца в заголовке
+            log.warn("ItemService.updateItem: Указан неверный id владельца вещи");
+            throw new ObjectNotFountException("Указан неверный id  владельца вещи");
         }
-        return itemRepository.updateItem(itemDto);
+        return itemRepository.updateItem(itemDto, id);
     }
 
-    public void removeItem(Long id, Long userId) throws ValidationException, ArgumentNotValidException {
+    public void removeItem(Long id, Long userId) throws ValidationException, ArgumentNotValidException, ObjectNotFountException {
         getItemById(id); // проверяем что вещь с таким id существует
         userService.getUserById(userId); // проверяем что пользователь с таким id существует
         Item item = itemRepository.getItems().get(id);
         if (!Objects.equals(item.getOwner().getId(), id)) { // проверяем что передан id владельца в заголовке
-            log.warn("ItemService.removeItem: Указан неверный id {} владельца вещи", id);
-            throw new ArgumentNotValidException("Указан неверный id " + id + " владельца вещи");
+            log.warn("ItemService.removeItem: Указан неверный id владельца вещи");
+            throw new ArgumentNotValidException("Указан неверный id  владельца вещи");
         }
         itemRepository.removeItem(id);
     }
@@ -54,7 +55,7 @@ public class ItemService {
     public ItemDto getItemById(Long id) throws ValidationException {
         Optional<ItemDto> itemDto = itemRepository.getItemById(id);
         itemDto.orElseThrow(() -> {
-            log.error("ItemService.getItemById: Вещи с таким id {} нет ", id);
+            log.error("ItemService.getItemById: Вещи с таким id нет ");
             return new ValidationException("Вещи с таким id нет");
         });
 
@@ -62,7 +63,7 @@ public class ItemService {
     }
 
 
-    public Collection<ItemDto> getAllItem(Long id) throws ValidationException {
+    public Collection<ItemDto> getAllItem(Long id) throws ObjectNotFountException {
         userService.getUserById(id); // проверяем что пользователь с таким id существует
         Collection<ItemDto> itemsByOwnerId = new ArrayList<>();
         itemRepository.getItems().values().forEach(i -> {

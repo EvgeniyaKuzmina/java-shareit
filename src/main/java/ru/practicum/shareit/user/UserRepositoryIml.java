@@ -6,7 +6,6 @@ import org.springframework.stereotype.Repository;
 
 import java.util.Collection;
 import java.util.Map;
-import java.util.Optional;
 
 @Repository
 @RequiredArgsConstructor
@@ -31,8 +30,8 @@ public class UserRepositoryIml implements UserRepository {
     }
 
     @Override
-    public User updateUser(User user) {
-        User updUser = users.get(user.getId());
+    public User updateUser(User user, Long id) {
+        User updUser = users.get(id);
         if (user.getEmail() != null) {
             updUser.setEmail(user.getEmail());
         }
@@ -50,9 +49,9 @@ public class UserRepositoryIml implements UserRepository {
     }
 
     @Override
-    public Optional<User> getUserById(Long id) {
+    public User getUserById(Long id) {
         log.info("UserRepositoryIml.getUserById: Пользователь c id {} получен", id);
-        return Optional.of(users.get(id));
+        return users.get(id);
     }
 
     @Override

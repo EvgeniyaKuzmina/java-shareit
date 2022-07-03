@@ -3,9 +3,13 @@ package ru.practicum.shareit.user;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import ru.practicum.shareit.exception.ConflictException;
+import ru.practicum.shareit.exception.ObjectNotFountException;
 import ru.practicum.shareit.exception.ValidationException;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 
 @Service
 @Slf4j
@@ -25,20 +29,20 @@ public class UserService {
         return userRepository.createUser(user);
     }
 
-    public User updateUser(User user) throws ValidationException {
-        getUserById(user.getId()); // проверка, что пользователь с указанным id есть
+    public User updateUser(User user, Long id) throws ConflictException, ObjectNotFountException {
+        getUserById(id); // проверка, что пользователь с указанным id есть
 
         List<User> usersList = new ArrayList<>(userRepository.getUsers().values());
         for (User u : usersList) {
-            if (u.getEmail().equals(user.getEmail()) && u.getId().equals(user.getId())) {
+            if (u.getEmail().equals(user.getEmail()) && !u.getId().equals(id)) {
                 log.error("UserService.updateUser: Пользователь с таким email {} уже существует ", user.getEmail());
-                throw new ValidationException("Пользователь с таким email уже существует");
+                throw new ConflictException("Пользователь с таким email уже существует");
             }
         }
-        return userRepository.updateUser(user);
+        return userRepository.updateUser(user, id);
     }
 
-    public void removeUser(Long id) throws ValidationException {
+    public void removeUser(Long id) throws ObjectNotFountException {
         getUserById(id); // проверка, что пользователь с указанным id есть
         userRepository.removeUser(id);
     }
@@ -47,13 +51,11 @@ public class UserService {
         return userRepository.getAllUsers();
     }
 
-    public User getUserById(Long id) throws ValidationException {
-        Optional<User> user = userRepository.getUserById(id);
-        user.orElseThrow(() -> {
-            log.error("UserService.getUserById: Пользователя с таким id {} нет ", id);
-            return new ValidationException("Пользователя с таким id нет");
-        });
-
-        return user.get();
+    public User getUserById(Long id) throws ObjectNotFountException {
+        if (!userRepository.getUsers().containsKey(id)) {
+            log.warn("Пользователя с указанным id {} нет", id);
+            throw new ObjectNotFountException("Пользователя с указанным id " + id + " нет");
+        }
+        return userRepository.getUserById(id);
     }
 }

@@ -14,7 +14,7 @@ public interface ItemRepository {
     ItemDto createItem(ItemDto itemDto, User user);
 
     // изменение вещи
-    ItemDto updateItem(ItemDto itemDto);
+    ItemDto updateItem(ItemDto itemDto, Long id);
 
     // удаление вещи по id
     void removeItem(Long id);

@@ -38,8 +38,8 @@ public class ItemRepositoryImpl implements ItemRepository {
     }
 
     @Override
-    public ItemDto updateItem(ItemDto itemDto) {
-        Item updItem = items.get(itemDto.getId());
+    public ItemDto updateItem(ItemDto itemDto, Long id) {
+        Item updItem = items.get(id);
         if (itemDto.getName() != null) {
             updItem.setName(itemDto.getName());
         }
@@ -49,7 +49,7 @@ public class ItemRepositoryImpl implements ItemRepository {
         if (itemDto.getAvailable() != null) {
             updItem.setAvailable(itemDto.getAvailable());
         }
-        log.info("ItemRepositoryImpl.updateItem: Вещь c id {} обновлена", itemDto.getId());
+        log.info("ItemRepositoryImpl.updateItem: Вещь c id {} обновлена", id);
         return ItemMapper.toItemDto(updItem);
     }
 
@@ -77,7 +77,9 @@ public class ItemRepositoryImpl implements ItemRepository {
     public Collection<ItemDto> searchItemByTitle(String text) {
         Collection<ItemDto> itemsDto = new ArrayList<>();
         items.values().forEach(i -> {
-            if (i.getName().contains(text) || i.getDescription().contains(text)) {
+            // проверяем что строка содержится в названии или описании, а статус вещи доступен к бронированию
+            if (i.getName().toLowerCase().contains(text.toLowerCase()) && i.getAvailable() ||
+                    i.getDescription().toLowerCase().contains(text.toLowerCase()) && i.getAvailable()) {
                 itemsDto.add(ItemMapper.toItemDto(i));
             }
         });

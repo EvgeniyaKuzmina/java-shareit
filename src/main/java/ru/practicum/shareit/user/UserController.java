@@ -4,6 +4,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.exception.ArgumentNotValidException;
+import ru.practicum.shareit.exception.ConflictException;
+import ru.practicum.shareit.exception.ObjectNotFountException;
 import ru.practicum.shareit.exception.ValidationException;
 
 import javax.validation.Valid;
@@ -34,22 +36,22 @@ public class UserController {
     }
 
     // обновление пользователя
-    @PutMapping
-    public User updateUser(@Valid @RequestBody User user) throws ValidationException {
-        return userService.updateUser(user);
+    @PatchMapping(value = {"/{id}"})
+    public User updateUser(@Valid @RequestBody User user, @PathVariable Long id) throws ConflictException, ObjectNotFountException {
+        return userService.updateUser(user, id);
     }
 
     // удаление пользователя по id
     @DeleteMapping(value = {"/{id}"})
     @ResponseBody
-    public void removeUser(@PathVariable Long id) throws ValidationException {
+    public void removeUser(@PathVariable Long id) throws ObjectNotFountException {
         userService.removeUser(id);
     }
 
     // получение пользователя по Id
     @GetMapping(value = {"/{id}"})
     @ResponseBody
-    public User getUserById(@PathVariable Long id) throws ValidationException {
+    public User getUserById(@PathVariable Long id) throws ObjectNotFountException {
         return userService.getUserById(id);
     }
 
