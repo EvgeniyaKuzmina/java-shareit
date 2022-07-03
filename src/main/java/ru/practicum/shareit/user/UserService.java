@@ -30,7 +30,7 @@ public class UserService {
 
         List<User> usersList = new ArrayList<>(userRepository.getUsers().values());
         for (User u : usersList) {
-            if (u.getEmail().equals(user.getEmail()) & u.getId().equals(user.getId())) {
+            if (u.getEmail().equals(user.getEmail()) && u.getId().equals(user.getId())) {
                 log.error("UserService.updateUser: Пользователь с таким email {} уже существует ", user.getEmail());
                 throw new ValidationException("Пользователь с таким email уже существует");
             }
