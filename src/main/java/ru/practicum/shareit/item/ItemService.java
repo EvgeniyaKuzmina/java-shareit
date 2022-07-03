@@ -40,8 +40,14 @@ public class ItemService {
         return itemRepository.updateItem(itemDto);
     }
 
-    public void removeItem(Long id) throws ValidationException {
+    public void removeItem(Long id, Long userId) throws ValidationException, ArgumentNotValidException {
         getItemById(id); // проверяем что вещь с таким id существует
+        userService.getUserById(userId); // проверяем что пользователь с таким id существует
+        Item item = itemRepository.getItems().get(id);
+        if (!Objects.equals(item.getOwner().getId(), id)) { // проверяем что передан id владельца в заголовке
+            log.warn("ItemService.removeItem: Указан неверный id {} владельца вещи", id);
+            throw new ArgumentNotValidException("Указан неверный id " + id + " владельца вещи");
+        }
         itemRepository.removeItem(id);
     }
 

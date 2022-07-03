@@ -43,8 +43,12 @@ public class ItemController {
 
     @DeleteMapping(value = {"/{id}"})
     @ResponseBody
-    public void removeItem(@PathVariable Long id) throws ValidationException {
-        itemService.removeItem(id);
+    public void removeItem(@PathVariable Long id, @RequestHeader("X-Sharer-User-Id") Long userId) throws ValidationException, ArgumentNotValidException {
+        if (userId == null) {
+            log.warn("Не указан id владельца вещи");
+            throw new ArgumentNotValidException("Не указан id владельца вещи");
+        }
+        itemService.removeItem(id, userId);
 
     }
 
