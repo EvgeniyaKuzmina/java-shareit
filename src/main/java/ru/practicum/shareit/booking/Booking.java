@@ -1,7 +1,25 @@
 package ru.practicum.shareit.booking;
 
+import lombok.Builder;
+import lombok.Data;
+import lombok.RequiredArgsConstructor;
+import ru.practicum.shareit.item.model.Item;
+import ru.practicum.shareit.user.User;
+import ru.practicum.shareit.utility.Status;
+
+import java.time.LocalDate;
+
 /**
- * // TODO .
+ класс описывающий бронирование вещи
  */
+
+@Data
+@Builder
 public class Booking {
+    private Long id;
+    private LocalDate start;
+    private LocalDate end;
+    private Item item;
+    private User booker;
+    private Status status;
 }
