@@ -11,10 +11,10 @@ import java.util.Optional;
 @Repository
 @RequiredArgsConstructor
 @Slf4j
-public class UserRepositoryIml implements UserRepository{
+public class UserRepositoryIml implements UserRepository {
 
-    private final Map<Long, User> users;
     private static long firstId = 1;
+    private final Map<Long, User> users;
 
     @Override
     public User createUser(User user) {
@@ -36,7 +36,7 @@ public class UserRepositoryIml implements UserRepository{
         if (user.getEmail() != null) {
             updUser.setEmail(user.getEmail());
         }
-        if (user.getName() != null){
+        if (user.getName() != null) {
             updUser.setName(user.getName());
         }
         log.info("UserRepositoryIml.updateUser: Пользователь c id {} обновлён", user.getId());
@@ -66,7 +66,7 @@ public class UserRepositoryIml implements UserRepository{
         return users.values();
     }
 
-    private Long nextId(){
+    private Long nextId() {
         return ++firstId;
     }
 }
