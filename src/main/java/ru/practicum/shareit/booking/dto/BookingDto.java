@@ -2,7 +2,6 @@ package ru.practicum.shareit.booking.dto;
 
 import lombok.Builder;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import org.hibernate.validator.constraints.UniqueElements;
 import ru.practicum.shareit.utility.Status;
@@ -11,7 +10,7 @@ import javax.validation.constraints.Email;
 import java.time.LocalDate;
 
 /**
- класс для работы с Booking возвращающий сущность пользователем
+ * класс для работы с Booking возвращающий сущность пользователем
  */
 
 @Builder
@@ -24,7 +23,6 @@ public class BookingDto {
     private final Item item;
     private final User booker;
     private final Status status;
-
 
 
     @Getter

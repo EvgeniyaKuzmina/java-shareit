@@ -16,10 +16,10 @@ import java.util.Optional;
 @Slf4j
 @Repository
 @RequiredArgsConstructor
-public class ItemRepositoryImpl implements ItemRepository{
+public class ItemRepositoryImpl implements ItemRepository {
 
-    private final Map<Long, Item> items;
     private static long firstId = 1;
+    private final Map<Long, Item> items;
 
     @Override
     public ItemDto createItem(ItemDto itemDto, User user) {
@@ -39,14 +39,14 @@ public class ItemRepositoryImpl implements ItemRepository{
 
     @Override
     public ItemDto updateItem(ItemDto itemDto) {
-        Item updItem =  items.get(itemDto.getId());
+        Item updItem = items.get(itemDto.getId());
         if (itemDto.getName() != null) {
             updItem.setName(itemDto.getName());
         }
-        if (itemDto.getDescription() != null){
+        if (itemDto.getDescription() != null) {
             updItem.setDescription(itemDto.getDescription());
         }
-        if (itemDto.getAvailable() != null){
+        if (itemDto.getAvailable() != null) {
             updItem.setAvailable(itemDto.getAvailable());
         }
         log.info("ItemRepositoryImpl.updateItem: Вещь c id {} обновлена", itemDto.getId());
@@ -67,7 +67,7 @@ public class ItemRepositoryImpl implements ItemRepository{
 
     @Override
     public Collection<ItemDto> getAllItem() {
-        Collection <ItemDto> itemsDto = new ArrayList<>();
+        Collection<ItemDto> itemsDto = new ArrayList<>();
         items.values().forEach(i -> itemsDto.add(ItemMapper.toItemDto(i)));
         log.info("ItemRepositoryImpl.getAllItem: Список всех вещей получен");
         return itemsDto;
@@ -75,7 +75,7 @@ public class ItemRepositoryImpl implements ItemRepository{
 
     @Override
     public Collection<ItemDto> searchItemByTitle(String text) {
-        Collection <ItemDto> itemsDto = new ArrayList<>();
+        Collection<ItemDto> itemsDto = new ArrayList<>();
         items.values().forEach(i -> {
             if (i.getName().contains(text) || i.getDescription().contains(text)) {
                 itemsDto.add(ItemMapper.toItemDto(i));
@@ -89,7 +89,7 @@ public class ItemRepositoryImpl implements ItemRepository{
         return items;
     }
 
-    private Long nextId(){
+    private Long nextId() {
         return ++firstId;
     }
 }

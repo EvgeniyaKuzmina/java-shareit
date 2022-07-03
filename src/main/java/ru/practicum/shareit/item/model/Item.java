@@ -2,11 +2,10 @@ package ru.practicum.shareit.item.model;
 
 import lombok.Builder;
 import lombok.Data;
-import lombok.RequiredArgsConstructor;
 import ru.practicum.shareit.user.User;
 
 /**
- класс описывающий сущность вещи, которую можно взять/сдать в аренду
+ * класс описывающий сущность вещи, которую можно взять/сдать в аренду
  */
 
 @Data
