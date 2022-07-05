@@ -1,8 +1,7 @@
 package ru.practicum.shareit.user.dto;
 
 import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 
 import javax.validation.constraints.Email;
 
@@ -11,8 +10,7 @@ import javax.validation.constraints.Email;
  * класс для работы с User возвращающий сущность пользователем
  */
 
-@Getter
-@Setter
+@Data
 @Builder
 public class UserDto {
     private Long id;
