@@ -2,11 +2,9 @@ package ru.practicum.shareit.item.dto;
 
 import lombok.Builder;
 import lombok.Data;
-import lombok.Getter;
-import lombok.Setter;
 
 /**
- класс для работы с Item возвращающий сущность пользователем
+ * класс для работы с Item возвращающий сущность пользователем
  */
 
 @Data
