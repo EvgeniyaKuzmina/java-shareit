@@ -1,4 +1,4 @@
-package ru.practicum.shareit.utility;
+package ru.practicum.shareit.booking;
 
 /**
  статусы бронирований вещи

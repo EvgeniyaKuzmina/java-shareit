@@ -1,10 +1,9 @@
 package ru.practicum.shareit.booking.dto;
 
 import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 import org.hibernate.validator.constraints.UniqueElements;
-import ru.practicum.shareit.utility.Status;
+import ru.practicum.shareit.booking.Status;
 
 import javax.validation.constraints.Email;
 import java.time.LocalDate;
@@ -14,8 +13,7 @@ import java.time.LocalDate;
  */
 
 @Builder
-@Getter
-@Setter
+@Data
 public class BookingDto {
     private final Long id;
     private final LocalDate start;
@@ -25,8 +23,7 @@ public class BookingDto {
     private final Status status;
 
 
-    @Getter
-    @Setter
+    @Data
     @Builder
     static class Item {
         private Long id;
@@ -35,8 +32,7 @@ public class BookingDto {
         private Boolean available;
     }
 
-    @Getter
-    @Setter
+    @Data
     @Builder
     static class User {
         private Long id;

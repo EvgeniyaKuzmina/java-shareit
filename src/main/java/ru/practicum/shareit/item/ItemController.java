@@ -46,7 +46,6 @@ public class ItemController {
 
     //удаление вещи
     @DeleteMapping(value = {"/{id}"})
-    @ResponseBody
     public void removeItem(@PathVariable Long id, @RequestHeader(HEADER_REQUEST) Long userId)
             throws ValidationException, ArgumentNotValidException, ObjectNotFountException {
         itemService.removeItem(id, userId);
@@ -54,14 +53,12 @@ public class ItemController {
 
     // получение вещи по id
     @GetMapping(value = {"/{id}"})
-    @ResponseBody
     public ItemDto getItemById(@PathVariable Long id) throws ValidationException {
         return itemService.getItemById(id);
     }
 
     // получение владельцем списка всех его вещей
     @GetMapping
-    @ResponseBody
     public Collection<ItemDto> getAllItem(@RequestHeader(HEADER_REQUEST) Long userId)
             throws ObjectNotFountException {
         return itemService.getAllItem(userId);
@@ -70,7 +67,6 @@ public class ItemController {
 
     // поиск вещи по части строки в названии или в описании
     @GetMapping("/search")
-    @ResponseBody
     public Collection<ItemDto> searchItemByTitle(@RequestParam String text) {
         if (text.isEmpty()) {
             return List.of();

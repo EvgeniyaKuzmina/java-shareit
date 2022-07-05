@@ -43,21 +43,18 @@ public class UserController {
 
     // удаление пользователя по id
     @DeleteMapping(value = {"/{id}"})
-    @ResponseBody
     public void removeUser(@PathVariable Long id) throws ObjectNotFountException {
         userService.removeUser(id);
     }
 
     // получение пользователя по Id
     @GetMapping(value = {"/{id}"})
-    @ResponseBody
     public User getUserById(@PathVariable Long id) throws ObjectNotFountException {
         return userService.getUserById(id);
     }
 
     // получение списка всех пользователей
     @GetMapping
-    @ResponseBody
     public Collection<User> getAllUsers() {
         return userService.getAllUsers();
     }
