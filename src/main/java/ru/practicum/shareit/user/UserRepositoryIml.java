@@ -3,7 +3,10 @@ package ru.practicum.shareit.user;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
+import ru.practicum.shareit.user.dto.UserDto;
+import ru.practicum.shareit.user.mapper.UserMapper;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
 
@@ -15,31 +18,30 @@ public class UserRepositoryIml implements UserRepository {
     private static long firstId = 1;
     private final Map<Long, User> users;
 
-    @Override
-    public User createUser(User user) {
+    public UserDto createUser(UserDto userDto) {
         Long id;
         if (users.isEmpty()) {
             id = firstId;
         } else {
             id = nextId();
         }
-        user.setId(id);
-        users.put(id, user);
+        userDto.setId(id);
+        users.put(id, UserMapper.toUser(userDto));
         log.info("UserRepositoryIml.createUser: Пользователь создан, id пользователя {} ", id);
-        return user;
+        return userDto;
     }
 
     @Override
-    public User updateUser(User user, Long id) {
+    public UserDto updateUser(UserDto userDto, Long id) {
         User updUser = users.get(id);
-        if (user.getEmail() != null) {
-            updUser.setEmail(user.getEmail());
+        if (userDto.getEmail() != null) {
+            updUser.setEmail(userDto.getEmail());
         }
-        if (user.getName() != null) {
-            updUser.setName(user.getName());
+        if (userDto.getName() != null) {
+            updUser.setName(userDto.getName());
         }
-        log.info("UserRepositoryIml.updateUser: Пользователь c id {} обновлён", user.getId());
-        return updUser;
+        log.info("UserRepositoryIml.updateUser: Пользователь c id {} обновлён", userDto.getId());
+        return UserMapper.toUserDto(updUser);
     }
 
     @Override
@@ -49,9 +51,9 @@ public class UserRepositoryIml implements UserRepository {
     }
 
     @Override
-    public User getUserById(Long id) {
+    public UserDto getUserById(Long id) {
         log.info("UserRepositoryIml.getUserById: Пользователь c id {} получен", id);
-        return users.get(id);
+        return UserMapper.toUserDto(users.get(id));
     }
 
     @Override
@@ -60,9 +62,11 @@ public class UserRepositoryIml implements UserRepository {
     }
 
     @Override
-    public Collection<User> getAllUsers() {
+    public Collection<UserDto> getAllUsers() {
+        Collection<UserDto> usersDto = new ArrayList<>();
+        users.values().forEach(u -> usersDto.add(UserMapper.toUserDto(u)));
         log.info("UserRepositoryIml.getAllUsers: Список всех пользователей получен");
-        return users.values();
+        return usersDto;
     }
 
     private Long nextId() {

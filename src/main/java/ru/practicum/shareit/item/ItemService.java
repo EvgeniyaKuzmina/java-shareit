@@ -9,8 +9,9 @@ import ru.practicum.shareit.exception.ValidationException;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.mapper.ItemMapper;
 import ru.practicum.shareit.item.model.Item;
-import ru.practicum.shareit.user.User;
 import ru.practicum.shareit.user.UserService;
+import ru.practicum.shareit.user.dto.UserDto;
+import ru.practicum.shareit.user.mapper.UserMapper;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -26,8 +27,8 @@ public class ItemService {
     private final ItemRepository itemRepository;
 
     public ItemDto createItem(ItemDto itemDto, Long id) throws ObjectNotFountException {
-        User user = userService.getUserById(id); // проверяем что пользователь с таким id существует
-        return itemRepository.createItem(itemDto, user);
+        UserDto userDto = userService.getUserById(id); // проверяем что пользователь с таким id существует
+        return itemRepository.createItem(itemDto, UserMapper.toUser(userDto));
     }
 
 

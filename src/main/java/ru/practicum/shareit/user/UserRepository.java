@@ -1,6 +1,7 @@
 package ru.practicum.shareit.user;
 
 import ru.practicum.shareit.exception.ObjectNotFountException;
+import ru.practicum.shareit.user.dto.UserDto;
 
 import java.util.Collection;
 import java.util.Map;
@@ -8,19 +9,19 @@ import java.util.Map;
 public interface UserRepository {
 
     // создание пользователя
-    User createUser(User user);
+    UserDto createUser(UserDto userDto);
 
     // обновление пользователя
-    User updateUser(User user, Long id);
+    UserDto updateUser(UserDto userDto, Long id);
 
     // удаление пользователя по id
     void removeUser(Long id);
 
     // получение пользователя по Id
-    User getUserById(Long id) throws ObjectNotFountException;
+    UserDto getUserById(Long id) throws ObjectNotFountException;
 
     // получение всех пользователей
-    Collection<User> getAllUsers();
+    Collection<UserDto> getAllUsers();
 
     Map<Long, User> getUsers();
 }

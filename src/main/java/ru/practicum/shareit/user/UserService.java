@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 import ru.practicum.shareit.exception.ConflictException;
 import ru.practicum.shareit.exception.ObjectNotFountException;
 import ru.practicum.shareit.exception.ValidationException;
+import ru.practicum.shareit.user.dto.UserDto;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -18,28 +19,28 @@ public class UserService {
 
     private final UserRepository userRepository;
 
-    public User createUser(User user) throws ValidationException {
+    public UserDto createUser(UserDto userDto) throws ValidationException {
         List<User> usersList = new ArrayList<>(userRepository.getUsers().values());
         for (User u : usersList) {
-            if (u.getEmail().equals(user.getEmail())) {
-                log.error("UserService.createUser: Пользователь с таким email {} уже существует ", user.getEmail());
+            if (u.getEmail().equals(userDto.getEmail())) {
+                log.error("UserService.createUser: Пользователь с таким email {} уже существует ", userDto.getEmail());
                 throw new ValidationException("Пользователь с таким email уже существует");
             }
         }
-        return userRepository.createUser(user);
+        return userRepository.createUser(userDto);
     }
 
-    public User updateUser(User user, Long id) throws ConflictException, ObjectNotFountException {
+    public UserDto updateUser(UserDto userDto, Long id) throws ConflictException, ObjectNotFountException {
         getUserById(id); // проверка, что пользователь с указанным id есть
 
         List<User> usersList = new ArrayList<>(userRepository.getUsers().values());
         for (User u : usersList) {
-            if (u.getEmail().equals(user.getEmail()) && !u.getId().equals(id)) {
-                log.error("UserService.updateUser: Пользователь с таким email {} уже существует ", user.getEmail());
+            if (u.getEmail().equals(userDto.getEmail()) && !u.getId().equals(id)) {
+                log.error("UserService.updateUser: Пользователь с таким email {} уже существует ", userDto.getEmail());
                 throw new ConflictException("Пользователь с таким email уже существует");
             }
         }
-        return userRepository.updateUser(user, id);
+        return userRepository.updateUser(userDto, id);
     }
 
     public void removeUser(Long id) throws ObjectNotFountException {
@@ -47,11 +48,11 @@ public class UserService {
         userRepository.removeUser(id);
     }
 
-    public Collection<User> getAllUsers() {
+    public Collection<UserDto> getAllUsers() {
         return userRepository.getAllUsers();
     }
 
-    public User getUserById(Long id) throws ObjectNotFountException {
+    public UserDto getUserById(Long id) throws ObjectNotFountException {
         if (!userRepository.getUsers().containsKey(id)) {
             log.warn("Пользователя с указанным id {} нет", id);
             throw new ObjectNotFountException("Пользователя с указанным id " + id + " нет");
