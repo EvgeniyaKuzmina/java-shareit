@@ -1,18 +1,18 @@
-package ru.practicum.shareit.user;
+package ru.practicum.shareit.user.dto;
 
 import lombok.Builder;
 import lombok.Data;
 
 import javax.validation.constraints.Email;
 
+
 /**
- * класс описывающий пользователей
+ * класс для работы с User возвращающий сущность пользователем
  */
 
-@Builder
 @Data
-public class User {
-
+@Builder
+public class UserDto {
     private Long id;
     private String name;
     @Email
