@@ -1,5 +1,7 @@
 package ru.practicum.shareit.booking;
 
+import javax.persistence.Enumerated;
+
 /**
  статусы бронирований вещи
  */
