@@ -182,7 +182,7 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public ItemDto.LastOrNextBooking getLastOrNextBookingForItem(Item item, Long userId, String parameter) {
+    public  ItemDto.LastOrNextBooking getLastOrNextBookingForItem(Item item, Long userId, String parameter) {
         if (!item.getOwner().getId().equals(userId)) {
             return null;
         }

@@ -41,7 +41,7 @@ public interface BookingService {
     Collection<Booking> getAllBookingByBookerIdSortAsc(Long id);
 
     // получение последнего или следующего бронирования для указанной вещи
-    ItemDto.LastOrNextBooking getLastOrNextBookingForItem(Item item, Long userId, String parameter);
+   ItemDto.LastOrNextBooking getLastOrNextBookingForItem(Item item, Long userId, String parameter);
 
     // получение всех комментарий вещи
     Collection<Comment> findAllByItemIdOrderByCreatDesc(Long itemId);

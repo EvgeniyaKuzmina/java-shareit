@@ -30,6 +30,8 @@ import java.util.List;
 public class ItemController {
 
     private static final String HEADER_REQUEST = "X-Sharer-User-Id"; // заголовок запроса в котором передаётся id владельца вещи
+    private static final String LAST = "LAST";
+    private static final String NEXT = "NEXT";
 
     private final ItemService itemService;
     private final BookingService bookingService;
@@ -44,7 +46,10 @@ public class ItemController {
             throw new ArgumentNotValidException("Не указано имя, описание товара или параметр доступности");
         }
         Item item = itemService.createItem(itemDto, userId);
-        return ItemMapper.toItemDto(item, userId);
+        ItemDto.LastOrNextBooking lastBooking = bookingService.getLastOrNextBookingForItem(item, userId, LAST);
+        ItemDto.LastOrNextBooking nextBooking = bookingService.getLastOrNextBookingForItem(item, userId, NEXT);
+        Collection<Comment> comments = bookingService.findAllByItemIdOrderByCreatDesc(item.getId());
+        return ItemMapper.toItemDto(item, lastBooking, nextBooking, comments);
     }
 
     // обновление данных о вещи
@@ -52,7 +57,10 @@ public class ItemController {
     public ItemDto updateItem(@Valid @RequestBody ItemDto itemDto, @PathVariable Long id,
                               @RequestHeader(HEADER_REQUEST) Long userId) throws ObjectNotFountException, ValidationException {
         Item item = itemService.updateItem(itemDto, id, userId);
-        return ItemMapper.toItemDto(item, userId);
+        ItemDto.LastOrNextBooking lastBooking = bookingService.getLastOrNextBookingForItem(item, userId, LAST);
+        ItemDto.LastOrNextBooking nextBooking = bookingService.getLastOrNextBookingForItem(item, userId, NEXT);
+        Collection<Comment> comments = bookingService.findAllByItemIdOrderByCreatDesc(item.getId());
+        return ItemMapper.toItemDto(item, lastBooking, nextBooking, comments);
     }
 
     //удаление вещи
@@ -65,24 +73,22 @@ public class ItemController {
     // получение вещи по id с комментариями
     @GetMapping(value = {"/{id}"})
     public ItemDto getItemById(@PathVariable Long id, @RequestHeader(HEADER_REQUEST) Long userId) throws ObjectNotFountException, ValidationException {
-        return ItemMapper.toItemDto(itemService.getItemById(id), userId);
+        Item item = itemService.getItemById(id);
+        ItemDto.LastOrNextBooking lastBooking = bookingService.getLastOrNextBookingForItem(item, userId, LAST);
+        ItemDto.LastOrNextBooking nextBooking = bookingService.getLastOrNextBookingForItem(item, userId, NEXT);
+        Collection<Comment> comments = bookingService.findAllByItemIdOrderByCreatDesc(item.getId());
+        return ItemMapper.toItemDto(item, lastBooking, nextBooking, comments);
     }
 
     // получение владельцем списка всех его вещей с комментариями
     @GetMapping
     public Collection<ItemDto> getAllItem(@RequestHeader(HEADER_REQUEST) Long userId)
             throws ObjectNotFountException, ValidationException {
-        Collection<ItemDto> allItemDto = new ArrayList<>();
-        itemService.getAllItemByUserId(userId).forEach(i -> {
-            try {
-                allItemDto.add(ItemMapper.toItemDto(i, userId));
-            } catch (ValidationException | ObjectNotFountException e) {
-                throw new RuntimeException(e);
-            }
-        });
-        return allItemDto;
+        Collection<ItemDto> itemsDto = new ArrayList<>();
+        Collection<Item> items = itemService.getAllItemByUserId(userId);
+        fillItemDto(items, itemsDto, userId);
+        return itemsDto;
     }
-
 
     // поиск вещи по части строки в названии или в описании
     @GetMapping("/search")
@@ -91,15 +97,10 @@ public class ItemController {
         if (text.isEmpty()) {
             return List.of();
         }
-        Collection<ItemDto> itemsDtoIncludeText = new ArrayList<>();
-        itemService.searchItemByNameOrDescription(text).forEach(i -> {
-            try {
-                itemsDtoIncludeText.add(ItemMapper.toItemDto(i, userId));
-            } catch (ValidationException | ObjectNotFountException e) {
-                throw new RuntimeException(e);
-            }
-        });
-        return itemsDtoIncludeText;
+        Collection<Item> items = itemService.searchItemByNameOrDescription(text);
+        Collection<ItemDto> itemsDto = new ArrayList<>();
+        fillItemDto(items, itemsDto, userId);
+        return itemsDto;
     }
 
     // добавление комментария к вещи после бронирования
@@ -114,5 +115,18 @@ public class ItemController {
         Collection<Booking> bookings = bookingService.getAllBookingByBookerIdSortAsc(userId);
         Comment comment = itemService.addNewComment(commentDto, userId, itemId, bookings);
         return CommentMapper.toCommentDto(comment);
+    }
+
+    private void fillItemDto(Collection<Item> items, Collection<ItemDto> itemsDto, Long userId) {
+        items.forEach(i -> {
+            ItemDto.LastOrNextBooking lastBooking = bookingService.getLastOrNextBookingForItem(i, userId, LAST);
+            ItemDto.LastOrNextBooking nextBooking = bookingService.getLastOrNextBookingForItem(i, userId, NEXT);
+            Collection<Comment> comments = bookingService.findAllByItemIdOrderByCreatDesc(i.getId());
+            try {
+                itemsDto.add(ItemMapper.toItemDto(i, lastBooking, nextBooking, comments));
+            } catch (ValidationException | ObjectNotFountException e) {
+                throw new RuntimeException(e);
+            }
+        });
     }
 }
