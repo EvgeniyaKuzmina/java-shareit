@@ -23,12 +23,11 @@ public class ItemMapper {
     private static final String LAST = "LAST";
     private static final String NEXT = "NEXT";
 
-
     private static BookingService bookingService;
 
     @Autowired
     public ItemMapper(BookingService bookingService) {
-        ItemMapper.bookingService = bookingService;
+        this.bookingService = bookingService;
     }
 
 
