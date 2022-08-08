@@ -14,13 +14,10 @@ import java.util.Objects;
  */
 
 
-@Builder
-@Getter
-@Setter
-@ToString
-@RequiredArgsConstructor
-@NoArgsConstructor
+
+@Data
 @AllArgsConstructor
+@RequiredArgsConstructor
 @Entity
 @Table(name = "item_requests", schema = "public")
 public class ItemRequest {
@@ -37,6 +34,7 @@ public class ItemRequest {
     @NotNull
     @Column(name = "created",  nullable = false)
     private LocalDateTime created;
+
 
     @Override
     public boolean equals(Object o) {

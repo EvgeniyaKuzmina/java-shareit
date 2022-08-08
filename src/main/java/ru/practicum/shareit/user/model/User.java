@@ -13,12 +13,11 @@ import java.util.Objects;
  */
 
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 @Getter
 @Setter
 @ToString
-@RequiredArgsConstructor
-@NoArgsConstructor
-@AllArgsConstructor
 @Entity
 @Table(name = "users", schema = "public")
 public class User {
