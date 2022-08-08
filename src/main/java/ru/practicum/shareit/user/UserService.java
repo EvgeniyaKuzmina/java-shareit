@@ -9,10 +9,10 @@ import java.util.Collection;
 public interface UserService {
 
     // создание пользователя
-    User createUser(UserDto UserDto);
+    User createUser(UserDto userDto);
 
     //обновление пользователя
-    User updateUser(UserDto UserDto, Long id) throws ObjectNotFountException;
+    User updateUser(UserDto userDto, Long id) throws ObjectNotFountException;
 
     // удаление пользователя по id
     void removeUser(Long id) throws ObjectNotFountException;

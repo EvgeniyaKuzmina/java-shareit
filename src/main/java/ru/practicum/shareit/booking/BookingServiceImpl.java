@@ -29,8 +29,8 @@ import java.util.stream.Collectors;
 @Slf4j
 public class BookingServiceImpl implements BookingService {
 
-    private final static String LAST = "LAST";
-    private final static String NEXT = "NEXT";
+    private static final String LAST = "LAST";
+    private static final String NEXT = "NEXT";
     private final BookingRepository bookingRepository;
     private final CommentService commentService;
     private final UserService userService;

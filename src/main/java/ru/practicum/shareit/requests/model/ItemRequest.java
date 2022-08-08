@@ -1,6 +1,8 @@
 package ru.practicum.shareit.requests.model;
 
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.RequiredArgsConstructor;
 import org.hibernate.Hibernate;
 import ru.practicum.shareit.user.model.User;
 
@@ -14,7 +16,6 @@ import java.util.Objects;
  */
 
 
-
 @Data
 @AllArgsConstructor
 @RequiredArgsConstructor
@@ -26,13 +27,13 @@ public class ItemRequest {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     @NotNull
-    @Column(name = "description",  nullable = false)
+    @Column(name = "description", nullable = false)
     private String description;
     @ManyToOne()
-    @JoinColumn(name="requester_id")
+    @JoinColumn(name = "requester_id")
     private User requester;
     @NotNull
-    @Column(name = "created",  nullable = false)
+    @Column(name = "created", nullable = false)
     private LocalDateTime created;
 
 

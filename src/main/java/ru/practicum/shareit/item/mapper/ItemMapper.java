@@ -9,8 +9,6 @@ import ru.practicum.shareit.exception.ObjectNotFountException;
 import ru.practicum.shareit.exception.ValidationException;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.model.Item;
-import ru.practicum.shareit.user.UserService;
-import ru.practicum.shareit.user.UserServiceImpl;
 import ru.practicum.shareit.user.model.User;
 
 import java.util.ArrayList;
@@ -22,8 +20,8 @@ import java.util.Collection;
 
 @Component
 public class ItemMapper {
-    private final static String LAST = "LAST";
-    private final static String NEXT = "NEXT";
+    private static final String LAST = "LAST";
+    private static final String NEXT = "NEXT";
 
 
     private static BookingService bookingService;
