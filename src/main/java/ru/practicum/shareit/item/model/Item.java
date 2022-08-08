@@ -1,13 +1,12 @@
 package ru.practicum.shareit.item.model;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import ru.practicum.shareit.user.User;
+import lombok.*;
+import org.hibernate.Hibernate;
+import ru.practicum.shareit.user.model.User;
 
 import javax.persistence.*;
-import java.util.Collection;
+import java.util.Objects;
+import java.util.Set;
 
 /**
  * класс описывающий сущность вещи, которую можно взять/сдать в аренду
@@ -16,7 +15,9 @@ import java.util.Collection;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@Data
+@Getter
+@Setter
+@ToString
 @Entity
 @Table(name = "items", schema = "public")
 public class Item {
@@ -35,7 +36,20 @@ public class Item {
     @Column(name = "request_id")
     private String request;
     @ElementCollection
-    @CollectionTable(name = "comments", joinColumns = @JoinColumn(name = "id"))
-    private Collection<String> comments;
+    @CollectionTable(name = "comments", joinColumns = @JoinColumn(name = "item_id"))
+    @Column(name = "text")
+    private Set<String> comments;
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) return false;
+        Item item = (Item) o;
+        return id != null && Objects.equals(id, item.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return getClass().hashCode();
+    }
 }

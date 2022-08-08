@@ -2,19 +2,17 @@ package ru.practicum.shareit.user;
 
 import ru.practicum.shareit.exception.ObjectNotFountException;
 import ru.practicum.shareit.user.dto.UserDto;
-import ru.practicum.shareit.user.mapper.UserMapper;
+import ru.practicum.shareit.user.model.User;
 
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Optional;
 
 public interface UserService {
 
     // создание пользователя
-    User createUser(User user);
+    User createUser(UserDto UserDto);
 
     //обновление пользователя
-    User updateUser(User user, Long id) throws ObjectNotFountException;
+    User updateUser(UserDto UserDto, Long id) throws ObjectNotFountException;
 
     // удаление пользователя по id
     void removeUser(Long id) throws ObjectNotFountException;

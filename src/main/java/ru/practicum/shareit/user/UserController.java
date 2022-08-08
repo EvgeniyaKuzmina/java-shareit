@@ -7,6 +7,7 @@ import ru.practicum.shareit.exception.ArgumentNotValidException;
 import ru.practicum.shareit.exception.ObjectNotFountException;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.mapper.UserMapper;
+import ru.practicum.shareit.user.model.User;
 
 import javax.validation.Valid;
 import java.util.ArrayList;
@@ -33,15 +34,14 @@ public class UserController {
         if (userDto.getEmail() == null) {
             throw new ArgumentNotValidException("Не указан email пользователя");
         }
-        User user  = UserMapper.toUser(userDto);
-        userDto = UserMapper.toUserDto(userServiceImpl.createUser(user));
+        userDto = UserMapper.toUserDto(userServiceImpl.createUser(userDto));
         return userDto;
     }
 
     // обновление пользователя
     @PatchMapping(value = {"/{id}"})
     public UserDto updateUser(@Valid @RequestBody UserDto userDto, @PathVariable Long id) throws ObjectNotFountException {
-        User user = userServiceImpl.updateUser(UserMapper.toUser(userDto), id);
+        User user = userServiceImpl.updateUser(userDto, id);
         return UserMapper.toUserDto(user);
     }
 
