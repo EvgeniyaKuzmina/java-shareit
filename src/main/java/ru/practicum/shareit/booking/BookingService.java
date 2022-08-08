@@ -46,5 +46,4 @@ public interface BookingService {
     // получение всех комментарий вещи
     Collection<Comment> findAllByItemIdOrderByCreatDesc(Long itemId);
 
-
 }
