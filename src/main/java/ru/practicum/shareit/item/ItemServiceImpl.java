@@ -18,6 +18,7 @@ import ru.practicum.shareit.user.model.User;
 
 import java.time.LocalDateTime;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -83,7 +84,8 @@ public class ItemServiceImpl implements ItemService {
     @Override
     public Collection<Item> getAllItemByUserId(Long id) throws ObjectNotFountException {
         userService.getUserById(id); // проверяем что пользователь с таким id существует
-        return itemRepository.findAllByOwnerId(id);
+        return itemRepository.findAllByOwnerId(id).stream()
+                .sorted(Comparator.comparing(Item::getId)).collect(Collectors.toList());
     }
 
     @Override

@@ -2,7 +2,9 @@ package ru.practicum.shareit.user;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
+import ru.practicum.shareit.exception.ConflictException;
 import ru.practicum.shareit.exception.ObjectNotFountException;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.mapper.UserMapper;
@@ -19,21 +21,34 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
 
     @Override
-    public User createUser(UserDto userDto) {
+    public User createUser(UserDto userDto) throws ConflictException {
         User user = UserMapper.toUser(userDto);
-        return userRepository.save(user);
-
+        try {
+            log.info("Добавлен пользователь {}.", user);
+            return userRepository.save(user);
+        } catch (DataIntegrityViolationException e) {
+            log.error("Пользователь с таким email {} уже существует.", user.getEmail());
+            throw new ConflictException(String.format("Пользователь с таким email %s уже существует.",
+                    user.getEmail()));
+        }
     }
 
     @Override
-    public User updateUser(UserDto userDto, Long id) throws ObjectNotFountException {
+    public User updateUser(UserDto userDto, Long id) throws ObjectNotFountException, ConflictException {
         User updUser = getUserById(id); // проверка, что пользователь с указанным id есть
         // обновляем данные
         Optional.ofNullable(userDto.getName()).ifPresent(updUser::setName);
         Optional.ofNullable(userDto.getEmail()).ifPresent(updUser::setEmail);
 
-        userRepository.save(updUser);
-        return updUser;
+        try {
+            log.info("Добавлен пользователь {}.", updUser);
+            return userRepository.save(updUser);
+        } catch (DataIntegrityViolationException e) {
+            log.error("Пользователь с таким email {} уже существует.", updUser.getEmail());
+            throw new ConflictException(String.format("Пользователь с таким email %s уже существует.",
+                    updUser.getEmail()));
+        }
+        // return updUser;
     }
 
     @Override

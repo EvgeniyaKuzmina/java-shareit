@@ -34,7 +34,7 @@ public class Item {
     @JoinColumn(name = "owner_id", nullable = false)
     private User owner;
     @Column(name = "request_id")
-    private String request;
+    private Long request;
     @ElementCollection
     @CollectionTable(name = "comments", joinColumns = @JoinColumn(name = "item_id"))
     @Column(name = "text")

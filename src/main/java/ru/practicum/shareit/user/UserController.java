@@ -4,6 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.exception.ArgumentNotValidException;
+import ru.practicum.shareit.exception.ConflictException;
 import ru.practicum.shareit.exception.ObjectNotFountException;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.mapper.UserMapper;
@@ -30,7 +31,7 @@ public class UserController {
 
     // создание пользователя
     @PostMapping
-    public UserDto createUser(@Valid @RequestBody UserDto userDto) throws ArgumentNotValidException {
+    public UserDto createUser(@Valid @RequestBody UserDto userDto) throws ArgumentNotValidException, ConflictException {
         if (userDto.getEmail() == null) {
             throw new ArgumentNotValidException("Не указан email пользователя");
         }
@@ -40,7 +41,7 @@ public class UserController {
 
     // обновление пользователя
     @PatchMapping(value = {"/{id}"})
-    public UserDto updateUser(@Valid @RequestBody UserDto userDto, @PathVariable Long id) throws ObjectNotFountException {
+    public UserDto updateUser(@Valid @RequestBody UserDto userDto, @PathVariable Long id) throws ObjectNotFountException, ConflictException {
         User user = userServiceImpl.updateUser(userDto, id);
         return UserMapper.toUserDto(user);
     }
