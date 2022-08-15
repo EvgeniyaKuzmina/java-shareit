@@ -1,33 +1,18 @@
 package ru.practicum.shareit.item;
 
-import ru.practicum.shareit.item.dto.ItemDto;
+import org.springframework.data.jpa.repository.JpaRepository;
 import ru.practicum.shareit.item.model.Item;
-import ru.practicum.shareit.user.User;
 
 import java.util.Collection;
-import java.util.Map;
-import java.util.Optional;
 
-public interface ItemRepository {
+public interface ItemRepository extends JpaRepository<Item, Long> {
 
-    // создание вещи
-    ItemDto createItem(ItemDto itemDto, User user);
+    // поиск всех вещей по id владельца
+    Collection<Item> findAllByOwnerId(Long ownerId);
 
-    // изменение вещи
-    ItemDto updateItem(ItemDto itemDto, Long id);
+    // поиск вещи по содержащейся подстроке в названии или описании вещи.
+    Collection<Item> findByNameOrDescriptionContainingIgnoreCase(String nameSearch, String descriptionSearch);
 
-    // удаление вещи по id
-    void removeItem(Long id);
 
-    // Просмотр информации о конкретной вещи по её идентификатору
-    Optional<ItemDto> getItemById(Long id);
-
-    // Просмотр владельцем списка всех его вещей
-    Collection<ItemDto> getAllItem();
-
-    //Поиск вещи потенциальным арендатором по части названия или описания
-    Collection<ItemDto> searchItemByTitle(String text);
-
-    Map<Long, Item> getItems();
 }
 

@@ -1,6 +1,6 @@
 package ru.practicum.shareit.requests.mapper;
 
-import ru.practicum.shareit.requests.ItemRequest;
+import ru.practicum.shareit.requests.model.ItemRequest;
 import ru.practicum.shareit.requests.dto.ItemRequestDto;
 
 /**
@@ -18,11 +18,10 @@ public class ItemRequestMapper {
     }
 
     public static ItemRequest toItemRequest(ItemRequestDto itemRequestDto) {
-        return ItemRequest.builder()
-                .id(itemRequestDto.getId())
-                .description(itemRequestDto.getDescription())
-                .requester(itemRequestDto.getRequester())
-                .created(itemRequestDto.getCreated())
-                .build();
+        return new ItemRequest(
+                itemRequestDto.getId(),
+                itemRequestDto.getDescription(),
+                itemRequestDto.getRequester(),
+                itemRequestDto.getCreated());
     }
 }

@@ -6,10 +6,12 @@ import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.exception.ArgumentNotValidException;
 import ru.practicum.shareit.exception.ConflictException;
 import ru.practicum.shareit.exception.ObjectNotFountException;
-import ru.practicum.shareit.exception.ValidationException;
 import ru.practicum.shareit.user.dto.UserDto;
+import ru.practicum.shareit.user.mapper.UserMapper;
+import ru.practicum.shareit.user.model.User;
 
 import javax.validation.Valid;
+import java.util.ArrayList;
 import java.util.Collection;
 
 /**
@@ -20,43 +22,48 @@ import java.util.Collection;
 @Slf4j
 public class UserController {
 
-    private final UserService userService;
+    private final UserServiceImpl userServiceImpl;
 
     @Autowired
-    public UserController(UserService userService) {
-        this.userService = userService;
+    public UserController(UserServiceImpl userServiceImpl) {
+        this.userServiceImpl = userServiceImpl;
     }
 
     // создание пользователя
     @PostMapping
-    public UserDto createUser(@Valid @RequestBody UserDto userDto) throws ValidationException, ArgumentNotValidException {
+    public UserDto createUser(@Valid @RequestBody UserDto userDto) throws ArgumentNotValidException, ConflictException {
         if (userDto.getEmail() == null) {
             throw new ArgumentNotValidException("Не указан email пользователя");
         }
-        return userService.createUser(userDto);
+        userDto = UserMapper.toUserDto(userServiceImpl.createUser(userDto));
+        return userDto;
     }
 
     // обновление пользователя
     @PatchMapping(value = {"/{id}"})
-    public UserDto updateUser(@Valid @RequestBody UserDto userDto, @PathVariable Long id) throws ConflictException, ObjectNotFountException {
-        return userService.updateUser(userDto, id);
+    public UserDto updateUser(@Valid @RequestBody UserDto userDto, @PathVariable Long id) throws ObjectNotFountException, ConflictException {
+        User user = userServiceImpl.updateUser(userDto, id);
+        return UserMapper.toUserDto(user);
     }
 
     // удаление пользователя по id
     @DeleteMapping(value = {"/{id}"})
     public void removeUser(@PathVariable Long id) throws ObjectNotFountException {
-        userService.removeUser(id);
+        userServiceImpl.removeUser(id);
     }
 
     // получение пользователя по Id
     @GetMapping(value = {"/{id}"})
     public UserDto getUserById(@PathVariable Long id) throws ObjectNotFountException {
-        return userService.getUserById(id);
+        User user = userServiceImpl.getUserById(id);
+        return UserMapper.toUserDto(user);
     }
 
     // получение списка всех пользователей
     @GetMapping
     public Collection<UserDto> getAllUsers() {
-        return userService.getAllUsers();
+        Collection<UserDto> allUsersDto = new ArrayList<>();
+        userServiceImpl.getAllUsers().forEach(u -> allUsersDto.add(UserMapper.toUserDto(u)));
+        return allUsersDto;
     }
 }
