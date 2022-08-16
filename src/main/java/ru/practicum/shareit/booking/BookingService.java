@@ -1,5 +1,7 @@
 package ru.practicum.shareit.booking;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.model.Comment;
@@ -25,18 +27,18 @@ public interface BookingService {
 
 
     //Получение списка всех бронирований текущего пользователя.
-    Collection<Booking> getBookingByBookerId(String state, Long bookerId) throws ValidationException, ObjectNotFountException;
+    Collection<Booking> getBookingByBookerId(String state, Long bookerId, Pageable pageable) throws ValidationException, ObjectNotFountException;
 
 
     //Получение списка бронирований для всех вещей текущего пользователя.
-    Collection<Booking> getBookingItemByOwnerId(String state, Long ownerId) throws ObjectNotFountException, ValidationException;
+    Collection<Booking> getBookingItemByOwnerId(String state, Long ownerId, Pageable pageable) throws ObjectNotFountException, ValidationException;
 
 
     // получение бронирования по Id
     Booking checkAndGetBookingById(Long id) throws ValidationException, ObjectNotFountException;
 
     // получение списка всех бронирований конкретного пользователя
-    Collection<Booking> getAllBookingByBookerIdSortDesc(Long id) throws ObjectNotFountException, ValidationException;
+    Page<Booking> getAllBookingByBookerIdSortDesc(Long id, Pageable pageable) throws ObjectNotFountException, ValidationException;
 
     Collection<Booking> getAllBookingByBookerIdSortAsc(Long id);
 

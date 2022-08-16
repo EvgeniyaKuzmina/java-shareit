@@ -20,9 +20,8 @@ import java.util.Collection;
 @Component
 public class ItemMapper {
 
-
     public static ItemDto toItemDto(Item item, ItemDto.LastOrNextBooking lastBooking,
-                                    ItemDto.LastOrNextBooking nextBooking, Collection<Comment> comments)
+                                          ItemDto.LastOrNextBooking nextBooking, Collection<Comment> comments)
             throws ValidationException, ObjectNotFountException {
         Collection<CommentDto> commentsDto = new ArrayList<>();
         comments.forEach(c -> commentsDto.add(CommentMapper.toCommentDto(c)));
@@ -34,11 +33,13 @@ public class ItemMapper {
                 .available(item.getAvailable())
                 .comments(commentsDto)
                 .build();
+        if (item.getRequest() != null) {
+            itemDto.setRequestId(item.getRequest().getId());
+        }
         itemDto.setLastBooking(lastBooking);
         itemDto.setNextBooking(nextBooking);
         return itemDto;
     }
-
 
     public static Item toItem(ItemDto itemDto, User user) {
         return Item.builder()

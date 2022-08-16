@@ -1,8 +1,6 @@
 package ru.practicum.shareit.requests.model;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.RequiredArgsConstructor;
+import lombok.*;
 import org.hibernate.Hibernate;
 import ru.practicum.shareit.user.model.User;
 
@@ -10,15 +8,19 @@ import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 import java.util.Objects;
+import java.util.Set;
 
 /**
  * класс, отвечающий за запрос вещи
  */
 
 
-@Data
+@Builder
+@NoArgsConstructor
 @AllArgsConstructor
-@RequiredArgsConstructor
+@Getter
+@Setter
+@ToString
 @Entity
 @Table(name = "item_requests", schema = "public")
 public class ItemRequest {
@@ -35,6 +37,10 @@ public class ItemRequest {
     @NotNull
     @Column(name = "created", nullable = false)
     private LocalDateTime created;
+    @ElementCollection
+    @CollectionTable(name = "items", joinColumns = @JoinColumn(name = "request_id"))
+    @Column(name = "id")
+    private Set<Long> itemsId;
 
 
     @Override

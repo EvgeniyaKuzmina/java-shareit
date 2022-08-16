@@ -2,6 +2,8 @@ package ru.practicum.shareit.booking;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.mapper.BookingMapper;
@@ -91,18 +93,18 @@ public class BookingServiceImpl implements BookingService {
 
 
     @Override
-    public Collection<Booking> getBookingByBookerId(String state, Long bookerId) throws ValidationException, ObjectNotFountException {
+    public Collection<Booking> getBookingByBookerId(String state, Long bookerId, Pageable pageable) throws ValidationException, ObjectNotFountException {
         userService.getUserById(bookerId); // проверяем что пользователь с таким id существует
-        Collection<Booking> bookings = getAllBookingByBookerIdSortDesc(bookerId);
-        return checkStateAndGetFilteredBookings(bookings, state);
+        Page<Booking> bookings = getAllBookingByBookerIdSortDesc(bookerId, pageable);
+        return checkStateAndGetFilteredBookings(bookings.toList(), state);
     }
 
     @Override
-    public Collection<Booking> getBookingItemByOwnerId(String state, Long ownerId) throws ObjectNotFountException, ValidationException {
+    public Collection<Booking> getBookingItemByOwnerId(String state, Long ownerId, Pageable pageable) throws ObjectNotFountException, ValidationException {
         userService.getUserById(ownerId); // проверяем что пользователь с таким id существует
-        Collection<Item> items = itemService.getAllItemByUserId(ownerId); // получаем все вещи по указанному пользователю
+        Collection<Item> items = itemService.getAllItemByUserIdWithoutPagination(ownerId); // получаем все вещи по указанному пользователю
         Collection<Booking> bookings = new ArrayList<>();
-        items.forEach(i -> bookings.addAll(bookingRepository.findAllByItemIdOrderByStartDesc(i.getId()))); //  получаем все бронирования по каждой вещи пользователя
+        items.forEach(i -> bookings.addAll(bookingRepository.findAllByItemIdOrderByStartDesc(i.getId(), pageable).toList())); //  получаем все бронирования по каждой вещи пользователя
         return checkStateAndGetFilteredBookings(bookings, state);
 
     }
@@ -118,8 +120,8 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public Collection<Booking> getAllBookingByBookerIdSortDesc(Long id) {
-        return bookingRepository.findAllByBookerIdOrderByStartDesc(id);
+    public Page<Booking> getAllBookingByBookerIdSortDesc(Long id, Pageable pageable) {
+        return bookingRepository.findAllByBookerIdOrderByStartDesc(id, pageable);
     }
 
     @Override
@@ -182,7 +184,7 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public  ItemDto.LastOrNextBooking getLastOrNextBookingForItem(Item item, Long userId, String parameter) {
+    public ItemDto.LastOrNextBooking getLastOrNextBookingForItem(Item item, Long userId, String parameter) {
         if (!item.getOwner().getId().equals(userId)) {
             return null;
         }

@@ -2,6 +2,8 @@ package ru.practicum.shareit.item;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.booking.CommentService;
 import ru.practicum.shareit.booking.dto.CommentDto;
@@ -13,15 +15,15 @@ import ru.practicum.shareit.exception.ObjectNotFountException;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.mapper.ItemMapper;
 import ru.practicum.shareit.item.model.Item;
+import ru.practicum.shareit.requests.RequestService;
+import ru.practicum.shareit.requests.model.ItemRequest;
 import ru.practicum.shareit.user.UserService;
 import ru.practicum.shareit.user.model.User;
 
 import java.time.LocalDateTime;
 import java.util.Collection;
-import java.util.Comparator;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -31,17 +33,30 @@ public class ItemServiceImpl implements ItemService {
     private final UserService userService;
     private final ItemRepository itemRepository;
     private final CommentService commentService;
+    private final RequestService requestService;
 
     @Override
-    public Item createItem(ItemDto itemDto, Long id) throws ObjectNotFountException {
-        User user = userService.getUserById(id); // проверяем что пользователь с таким id существует
+    public Item createItem(ItemDto itemDto, Long userId) throws ObjectNotFountException, ArgumentNotValidException {
+        User user = userService.getUserById(userId); // проверяем что пользователь с таким id существует
         Item item = ItemMapper.toItem(itemDto, user);
         item.setOwner(user);
-        return itemRepository.save(item);
+        if (itemDto.getRequestId() != null) {
+            ItemRequest itemRequest = requestService.getRequestById(itemDto.getRequestId(), userId); // проверяем что указанный запрос существует и получаем его
+            item.setRequest(itemRequest);
+        } else {
+            item = ItemMapper.toItem(itemDto, user);
+        }
+        try {
+            item = itemRepository.save(item);
+        } catch (Throwable e) {
+            log.error("Данная вещь уже существует");
+            throw new ArgumentNotValidException("Данная вещь уже существует");
+        }
+        return item;
     }
 
     @Override
-    public Item updateItem(ItemDto updItem, Long id, Long userId) throws ObjectNotFountException {
+    public Item updateItem(ItemDto updItem, Long id, Long userId) throws ObjectNotFountException, ArgumentNotValidException {
         userService.getUserById(userId); // проверяем что пользователь с таким id существует
         Item item = getItemById(id); // получаем вещь по Id
         if (!Objects.equals(
@@ -53,8 +68,14 @@ public class ItemServiceImpl implements ItemService {
         Optional.ofNullable(updItem.getName()).ifPresent(item::setName);
         Optional.ofNullable(updItem.getDescription()).ifPresent(item::setDescription);
         Optional.ofNullable(updItem.getAvailable()).ifPresent(item::setAvailable);
+        try {
+            item = itemRepository.save(item);
+        } catch (Throwable e) {
+            log.error("Данная вещь уже существует");
+            throw new ArgumentNotValidException("Данная вещь уже существует");
+        }
 
-        return itemRepository.save(item);
+        return item;
     }
 
     @Override
@@ -82,17 +103,20 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public Collection<Item> getAllItemByUserId(Long id) throws ObjectNotFountException {
+    public Page<Item> getAllItemByUserId(Long id, Pageable pageable) throws ObjectNotFountException {
         userService.getUserById(id); // проверяем что пользователь с таким id существует
-        return itemRepository.findAllByOwnerId(id).stream()
-                .sorted(Comparator.comparing(Item::getId)).collect(Collectors.toList());
+        return itemRepository.findAllByOwnerIdOrderByIdAsc(id, pageable);
     }
 
     @Override
-    public Collection<Item> searchItemByNameOrDescription(String text) {
-        return itemRepository.findByNameOrDescriptionContainingIgnoreCase(text, text).stream()
-                .filter(Item::getAvailable)
-                .collect(Collectors.toList());
+    public Collection<Item> getAllItemByUserIdWithoutPagination(Long id) throws ObjectNotFountException {
+        userService.getUserById(id); // проверяем что пользователь с таким id существует
+        return itemRepository.findAllByOwnerIdOrderByIdAsc(id);
+    }
+
+    @Override
+    public Page<Item> searchItemByNameOrDescription(String text, Pageable pageable) {
+        return itemRepository.findByNameOrDescriptionContainingIgnoreCaseAndAvailableTrue(text, text, pageable);
     }
 
     @Override
@@ -119,5 +143,10 @@ public class ItemServiceImpl implements ItemService {
         comment.setItem(item);
         comment = commentService.saveComment(comment);
         return comment;
+    }
+
+    @Override
+    public Collection<Item> findAllByRequestId(Long requestId) {
+        return itemRepository.findAllByRequestId(requestId);
     }
 }

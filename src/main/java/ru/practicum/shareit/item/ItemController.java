@@ -2,6 +2,9 @@ package ru.practicum.shareit.item;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.booking.BookingService;
 import ru.practicum.shareit.booking.dto.CommentDto;
@@ -32,7 +35,8 @@ public class ItemController {
     private static final String HEADER_REQUEST = "X-Sharer-User-Id"; // заголовок запроса в котором передаётся id владельца вещи
     private static final String LAST = "LAST";
     private static final String NEXT = "NEXT";
-
+    private static final Integer FROM = 0;
+    private static final Integer SIZE = 10;
     private final ItemService itemService;
     private final BookingService bookingService;
 
@@ -55,7 +59,7 @@ public class ItemController {
     // обновление данных о вещи
     @PatchMapping(value = {"/{id}"})
     public ItemDto updateItem(@Valid @RequestBody ItemDto itemDto, @PathVariable Long id,
-                              @RequestHeader(HEADER_REQUEST) Long userId) throws ObjectNotFountException, ValidationException {
+                              @RequestHeader(HEADER_REQUEST) Long userId) throws ObjectNotFountException, ValidationException, ArgumentNotValidException {
         Item item = itemService.updateItem(itemDto, id, userId);
         ItemDto.LastOrNextBooking lastBooking = bookingService.getLastOrNextBookingForItem(item, userId, LAST);
         ItemDto.LastOrNextBooking nextBooking = bookingService.getLastOrNextBookingForItem(item, userId, NEXT);
@@ -80,24 +84,44 @@ public class ItemController {
         return ItemMapper.toItemDto(item, lastBooking, nextBooking, comments);
     }
 
-    // получение владельцем списка всех его вещей с комментариями
+    // получение владельцем списка всех его вещей с комментариями. Эндпоинт GET items?from={from}&size={size}
     @GetMapping
-    public Collection<ItemDto> getAllItem(@RequestHeader(HEADER_REQUEST) Long userId)
-            throws ObjectNotFountException, ValidationException {
+    public Collection<ItemDto> getAllItem(@RequestHeader(HEADER_REQUEST) Long userId,
+                                          @RequestParam(required = false) Integer from, @RequestParam(required = false) Integer size)
+            throws ObjectNotFountException, ArgumentNotValidException {
+        if (checkParameterForNull(from, size)) {
+            from = FROM;
+            size = SIZE;
+        }
+        if (checkParameterForMin(from, size)) {
+            log.error("Указаны неверные параметры для отображения страницы");
+            throw new ArgumentNotValidException("Указаны неверные параметры для отображения страницы");
+        }
+        Pageable pageable = PageRequest.of(from, size);
         Collection<ItemDto> itemsDto = new ArrayList<>();
-        Collection<Item> items = itemService.getAllItemByUserId(userId);
+        Page<Item> items = itemService.getAllItemByUserId(userId, pageable);
         fillItemDto(items, itemsDto, userId);
         return itemsDto;
     }
 
-    // поиск вещи по части строки в названии или в описании
+    // поиск вещи по части строки в названии или в описании. Эндпоинт GET items/search??text={text}&&from={from}&size={size}
     @GetMapping("/search")
     public Collection<ItemDto> searchItemByNameOrDescription(@RequestParam String text,
-                                                             @RequestHeader(HEADER_REQUEST) Long userId) {
+                                                             @RequestHeader(HEADER_REQUEST) Long userId,
+                                                             @RequestParam(required = false) Integer from, @RequestParam(required = false) Integer size) throws ArgumentNotValidException {
         if (text.isEmpty()) {
             return List.of();
         }
-        Collection<Item> items = itemService.searchItemByNameOrDescription(text);
+        if (checkParameterForNull(from, size)) {
+            from = FROM;
+            size = SIZE;
+        }
+        if (checkParameterForMin(from, size)) {
+            log.error("Указаны неверные параметры для отображения страницы");
+            throw new ArgumentNotValidException("Указаны неверные параметры для отображения страницы");
+        }
+        Pageable pageable = PageRequest.of(from, size);
+        Page<Item> items = itemService.searchItemByNameOrDescription(text, pageable);
         Collection<ItemDto> itemsDto = new ArrayList<>();
         fillItemDto(items, itemsDto, userId);
         return itemsDto;
@@ -117,7 +141,7 @@ public class ItemController {
         return CommentMapper.toCommentDto(comment);
     }
 
-    private void fillItemDto(Collection<Item> items, Collection<ItemDto> itemsDto, Long userId) {
+    private void fillItemDto(Page<Item> items, Collection<ItemDto> itemsDto, Long userId) {
         items.forEach(i -> {
             ItemDto.LastOrNextBooking lastBooking = bookingService.getLastOrNextBookingForItem(i, userId, LAST);
             ItemDto.LastOrNextBooking nextBooking = bookingService.getLastOrNextBookingForItem(i, userId, NEXT);
@@ -128,5 +152,14 @@ public class ItemController {
                 throw new RuntimeException(e);
             }
         });
+    }
+
+    // проверяет параметры from и size, что они введены и введены корректно
+    private boolean checkParameterForNull(Integer from, Integer size) {
+        return from == null || size == null;
+    }
+
+    private boolean checkParameterForMin(Integer from, Integer size) {
+        return from < 0 || size < 1;
     }
 }

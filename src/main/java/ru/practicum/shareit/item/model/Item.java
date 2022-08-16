@@ -2,6 +2,7 @@ package ru.practicum.shareit.item.model;
 
 import lombok.*;
 import org.hibernate.Hibernate;
+import ru.practicum.shareit.requests.model.ItemRequest;
 import ru.practicum.shareit.user.model.User;
 
 import javax.persistence.*;
@@ -33,8 +34,9 @@ public class Item {
     @OneToOne
     @JoinColumn(name = "owner_id", nullable = false)
     private User owner;
-    @Column(name = "request_id")
-    private Long request;
+    @OneToOne
+    @JoinColumn(name = "request_id")
+    private ItemRequest request;
     @ElementCollection
     @CollectionTable(name = "comments", joinColumns = @JoinColumn(name = "item_id"))
     @Column(name = "text")
