@@ -6,7 +6,7 @@ import java.util.Collection;
 
 public interface CommentService {
 
-    Comment saveComment(Comment comment);
+    Comment addNewComment(Comment comment);
 
     Collection<Comment> findAllByItemIdOrderByCreatDesc(Long itemId);
 }

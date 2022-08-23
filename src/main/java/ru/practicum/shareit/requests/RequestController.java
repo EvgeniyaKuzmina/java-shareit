@@ -1,22 +1,25 @@
 package ru.practicum.shareit.requests;
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.exception.ArgumentNotValidException;
 import ru.practicum.shareit.exception.ObjectNotFountException;
 import ru.practicum.shareit.item.ItemService;
+import ru.practicum.shareit.item.ItemServiceImpl;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.requests.dto.ItemRequestDto;
 import ru.practicum.shareit.requests.mapper.ItemRequestMapper;
 import ru.practicum.shareit.requests.model.ItemRequest;
 
 import javax.validation.Valid;
+import javax.validation.constraints.Positive;
+import javax.validation.constraints.PositiveOrZero;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -27,13 +30,13 @@ import java.util.Optional;
 @Slf4j
 public class RequestController {
 
-    private static final Integer FROM = 0;
-    private static final Integer SIZE = 10;
+    private static final String FROM = "0";
+    private static final String SIZE = "10";
     private static final String HEADER_REQUEST = "X-Sharer-User-Id"; // заголовок запроса в котором передаётся id владельца вещи
     private final RequestService requestService;
     private final ItemService itemService;
 
-    public RequestController(RequestService requestService, ItemService itemService) {
+    public RequestController(RequestServiceImpl requestService, ItemServiceImpl itemService) {
         this.requestService = requestService;
         this.itemService = itemService;
     }
@@ -41,57 +44,43 @@ public class RequestController {
 
     // создание нового запроса вещи.
     @PostMapping
-    public ItemRequestDto createRequest(@Valid @RequestBody ItemRequestDto requestDto,
+    public ItemRequestDto createRequest(@Valid @RequestBody ItemRequestDto itemRequestDto,
                                         @RequestHeader(HEADER_REQUEST) Long requesterId) throws ObjectNotFountException, ArgumentNotValidException {
-        if (Optional.ofNullable(requestDto.getDescription()).isEmpty() || requestDto.getDescription().isBlank()) {
+        if (Optional.ofNullable(itemRequestDto.getDescription()).isEmpty() || itemRequestDto.getDescription().isBlank()) {
             log.error("Пустое описание запроса");
             throw new ArgumentNotValidException("Описание запроса не может быть пустым");
         }
-        requestDto.setCreated(LocalDateTime.now());
-        ItemRequest request = requestService.createRequest(requestDto, requesterId);
+        itemRequestDto.setCreated(LocalDateTime.now());
+        ItemRequest itemRequest = requestService.createRequest(itemRequestDto, requesterId);
 
-        Collection<Item> items = itemService.findAllByRequestId(request.getId());
-        return ItemRequestMapper.toItemRequestDto(request, items);
+        Collection<Item> items = itemService.findAllByRequestId(itemRequest.getId());
+        return ItemRequestMapper.toItemRequestDto(itemRequest, items);
     }
 
-    //Получение списка всех своих запросов вместе с данными об ответах на них.
+    //Получение списка всех своих запросов вместе с данными об ответах на них. Эндпоинт GET /requests/?from={from}&size={size}
     @GetMapping
     public Collection<ItemRequestDto> getAllRequestsByUserId(@RequestHeader(HEADER_REQUEST) Long requesterId,
-                                                             @RequestParam(required = false) Integer from,
-                                                             @RequestParam(required = false) Integer size)
-            throws ObjectNotFountException, ArgumentNotValidException {
-        if (checkParameterForNull(from, size)) {
-            from = FROM;
-            size = SIZE;
-        }
-        if (checkParameterForMin(from, size)) {
-            log.error("Указаны неверные параметры для отображения страницы");
-            throw new ArgumentNotValidException("Указаны неверные параметры для отображения страницы");
-        }
-        Pageable pageable = PageRequest.of(from, size);
-        Page<ItemRequest> requestPage = requestService.getAllRequestsByUserId(requesterId, pageable);
+                                                             @RequestParam(required = false, defaultValue = FROM) @PositiveOrZero String from,
+                                                             @RequestParam(required = false, defaultValue = SIZE) @Positive String size)
+            throws ObjectNotFountException {
 
-        return toListItemRequestDto(requestPage);
+        Pageable pageable = PageRequest.of(Integer.parseInt(from), Integer.parseInt(size));
+        List<ItemRequest> itemRequestPage = requestService.getAllRequestsByUserId(requesterId, pageable);
+
+        return toListItemRequestDto(itemRequestPage);
     }
 
     // Получение списка запросов, созданных другими пользователями. Эндпоинт GET /requests/all?from={from}&size={size}
     @GetMapping("/all")
     public Collection<ItemRequestDto> getAllRequestsCreatedAnotherUsers(@RequestHeader(HEADER_REQUEST) Long requesterId,
-                                                                        @RequestParam(required = false) Integer from,
-                                                                        @RequestParam(required = false) Integer size)
-            throws ObjectNotFountException, ArgumentNotValidException {
-        if (checkParameterForNull(from, size)) {
-            from = FROM;
-            size = SIZE;
-        }
-        if (checkParameterForMin(from, size)) {
-            log.error("Указаны неверные параметры для отображения страницы");
-            throw new ArgumentNotValidException("Указаны неверные параметры для отображения страницы");
-        }
-        Pageable pageable = PageRequest.of(from, size);
-        Page<ItemRequest> requestPage = requestService.getAllRequestsCreatedAnotherUsers(requesterId, pageable);
+                                                                        @RequestParam(required = false, defaultValue = FROM) @PositiveOrZero String from,
+                                                                        @RequestParam(required = false, defaultValue = SIZE) @Positive String size)
+            throws ObjectNotFountException {
 
-        return toListItemRequestDto(requestPage);
+        Pageable pageable = PageRequest.of(Integer.parseInt(from), Integer.parseInt(size));
+        List<ItemRequest> itemRequestPage = requestService.getAllRequestsCreatedAnotherUsers(requesterId, pageable);
+
+        return toListItemRequestDto(itemRequestPage);
 
     }
 
@@ -100,24 +89,16 @@ public class RequestController {
     public ItemRequestDto getRequestById(@RequestHeader(HEADER_REQUEST) Long requesterId, @PathVariable Long id)
             throws ObjectNotFountException {
 
-        ItemRequest request = requestService.getRequestById(id, requesterId);
-        Collection<Item> items = itemService.findAllByRequestId(request.getId());
-        return ItemRequestMapper.toItemRequestDto(request, items);
+        ItemRequest itemRequest = requestService.getRequestById(id, requesterId);
+        Collection<Item> items = itemService.findAllByRequestId(itemRequest.getId());
+        return ItemRequestMapper.toItemRequestDto(itemRequest, items);
     }
 
-    // проверяет параметры from и size, что они введены и введены корректно
-    private boolean checkParameterForNull(Integer from, Integer size) {
-        return from == null || size == null;
-    }
-
-    private boolean checkParameterForMin(Integer from, Integer size) {
-        return from < 0 || size < 1;
-    }
-
-    private Collection<ItemRequestDto> toListItemRequestDto(Page<ItemRequest> requestPage) {
+    // преобразовывает список ItemRequest в список ItemRequestDto
+    private Collection<ItemRequestDto> toListItemRequestDto(List<ItemRequest> itemRequestPage) {
         Collection<ItemRequestDto> requestLis = new ArrayList<>();
         Collection<Item> items = new ArrayList<>();
-        requestPage.getContent().forEach(r -> {
+        itemRequestPage.forEach(r -> {
             items.addAll(itemService.findAllByRequestId(r.getId()));
             requestLis.add(ItemRequestMapper.toItemRequestDto(r, items));
         });

@@ -1,5 +1,6 @@
 package ru.practicum.shareit.user;
 
+import lombok.Builder;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -16,6 +17,7 @@ import java.util.Optional;
 @Service
 @Slf4j
 @RequiredArgsConstructor
+@Builder
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
@@ -34,8 +36,8 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User updateUser(UserDto userDto, Long id) throws ObjectNotFountException, ConflictException {
-        User updUser = getUserById(id); // проверка, что пользователь с указанным id есть
+    public User updateUser(UserDto userDto, Long userId) throws ObjectNotFountException, ConflictException {
+        User updUser = getUserById(userId); // проверка, что пользователь с указанным id есть
         // обновляем данные
         Optional.ofNullable(userDto.getName()).ifPresent(updUser::setName);
         Optional.ofNullable(userDto.getEmail()).ifPresent(updUser::setEmail);

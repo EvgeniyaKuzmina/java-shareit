@@ -13,6 +13,8 @@ import ru.practicum.shareit.exception.ObjectNotFountException;
 import ru.practicum.shareit.exception.ValidationException;
 
 import javax.validation.Valid;
+import javax.validation.constraints.Positive;
+import javax.validation.constraints.PositiveOrZero;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -27,8 +29,8 @@ import java.util.Collection;
 public class BookingController {
     private static final String HEADER_REQUEST = "X-Sharer-User-Id"; // заголовок запроса в котором передаётся id пользователя
 
-    private static final Integer FROM = 0;
-    private static final Integer SIZE = 10;
+    private static final String FROM = "0";
+    private static final String SIZE = "10";
     private final BookingService bookingService;
 
     // Добавление нового запроса на бронирование.
@@ -47,7 +49,8 @@ public class BookingController {
 
     //Подтверждение или отклонение запроса на бронирование. Может быть выполнено только владельцем вещи.
     @PatchMapping(value = {"/{bookingId}"})
-    public BookingDto processingBooking(@PathVariable Long bookingId, @RequestParam Boolean approved,
+    public BookingDto processingBooking(@PathVariable Long bookingId,
+                                        @RequestParam Boolean approved,
                                         @RequestHeader(HEADER_REQUEST) Long ownerId) throws ObjectNotFountException, ValidationException, ArgumentNotValidException {
         Booking booking = bookingService.processingBookingRequest(bookingId, ownerId, approved);
         return BookingMapper.toBookingDto(booking);
@@ -55,7 +58,8 @@ public class BookingController {
 
     //Получение данных о конкретном бронировании (включая его статус).
     @GetMapping(value = {"/{bookingId}"})
-    public BookingDto getBookingById(@PathVariable Long bookingId, @RequestHeader(HEADER_REQUEST) Long ownerId) throws ValidationException, ObjectNotFountException {
+    public BookingDto getBookingById(@PathVariable Long bookingId,
+                                     @RequestHeader(HEADER_REQUEST) Long ownerId) throws ValidationException, ObjectNotFountException {
         Booking booking = bookingService.getBookingById(bookingId, ownerId);
         return BookingMapper.toBookingDto(booking);
     }
@@ -64,19 +68,12 @@ public class BookingController {
     @GetMapping
     public Collection<BookingDto> getBookingByBookerId(@RequestParam(required = false) String state,
                                                        @RequestHeader(HEADER_REQUEST) Long bookerId,
-                                                       @RequestParam(required = false) Integer from,
-                                                       @RequestParam(required = false) Integer size)
+                                                       @RequestParam(required = false, defaultValue = FROM) @PositiveOrZero String from,
+                                                       @RequestParam(required = false, defaultValue = SIZE) @Positive String size)
 
-            throws ObjectNotFountException, ValidationException, ArgumentNotValidException {
-        if (checkParameterForNull(from, size)) {
-            from = FROM;
-            size = SIZE;
-        }
-        if (checkParameterForMin(from, size)) {
-            log.error("Указаны неверные параметры для отображения страницы");
-            throw new ArgumentNotValidException("Указаны неверные параметры для отображения страницы");
-        }
-        Pageable pageable = PageRequest.of(from, size);
+            throws ObjectNotFountException, ValidationException {
+
+        Pageable pageable = PageRequest.of(Integer.parseInt(from), Integer.parseInt(size));
         Collection<Booking> bookings = bookingService.getBookingByBookerId(state, bookerId, pageable);
         Collection<BookingDto> bookingsDto = new ArrayList<>();
         bookings.forEach(b -> bookingsDto.add(BookingMapper.toBookingDto(b)));
@@ -87,29 +84,15 @@ public class BookingController {
     @GetMapping(path = "/owner")
     public Collection<BookingDto> getBookingItemByOwnerId(@RequestParam(required = false) String state,
                                                           @RequestHeader(HEADER_REQUEST) Long ownerId,
-                                                          @RequestParam(required = false) Integer from,
-                                                          @RequestParam(required = false) Integer size) throws ObjectNotFountException, ValidationException, ArgumentNotValidException {
-        if (checkParameterForNull(from, size)) {
-            from = FROM;
-            size = SIZE;
-        }
-        if (checkParameterForMin(from, size)) {
-            log.error("Указаны неверные параметры для отображения страницы");
-            throw new ArgumentNotValidException("Указаны неверные параметры для отображения страницы");
-        }
-        Pageable pageable = PageRequest.of(from, size);
+                                                          @RequestParam(required = false, defaultValue = FROM) @PositiveOrZero String from,
+                                                          @RequestParam(required = false, defaultValue = SIZE) @Positive String size)
+            throws ObjectNotFountException, ValidationException {
+
+        Pageable pageable = PageRequest.of(Integer.parseInt(from), Integer.parseInt(size));
         Collection<Booking> bookings = bookingService.getBookingItemByOwnerId(state, ownerId, pageable);
         Collection<BookingDto> bookingsDto = new ArrayList<>();
         bookings.forEach(b -> bookingsDto.add(BookingMapper.toBookingDto(b)));
         return bookingsDto;
     }
 
-    // проверяет параметры from и size, что они введены и введены корректно
-    private boolean checkParameterForNull(Integer from, Integer size) {
-        return from == null || size == null;
-    }
-
-    private boolean checkParameterForMin(Integer from, Integer size) {
-        return from < 0 || size < 1;
-    }
 }

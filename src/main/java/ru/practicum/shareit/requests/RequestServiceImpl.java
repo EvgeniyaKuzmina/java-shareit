@@ -2,7 +2,6 @@ package ru.practicum.shareit.requests;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.exception.ObjectNotFountException;
@@ -12,6 +11,7 @@ import ru.practicum.shareit.requests.model.ItemRequest;
 import ru.practicum.shareit.user.UserService;
 import ru.practicum.shareit.user.model.User;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -22,20 +22,20 @@ public class RequestServiceImpl implements RequestService {
     private final UserService userService;
 
     @Override
-    public ItemRequest createRequest(ItemRequestDto requestDto, Long id) throws ObjectNotFountException {
+    public ItemRequest createRequest(ItemRequestDto itemRequestDto, Long id) throws ObjectNotFountException {
         User user = userService.getUserById(id);
-        ItemRequest itemRequest = ItemRequestMapper.toItemRequest(requestDto, user);
+        ItemRequest itemRequest = ItemRequestMapper.toItemRequest(itemRequestDto, user);
         return requestRepository.save(itemRequest);
     }
 
     @Override
-    public Page<ItemRequest> getAllRequestsByUserId(Long id, Pageable pageable) throws ObjectNotFountException {
+    public List<ItemRequest> getAllRequestsByUserId(Long id, Pageable pageable) throws ObjectNotFountException {
         userService.getUserById(id); // проверяем что пользователь с указанным id есть
         return requestRepository.findAllByRequesterIdOrderByCreatedDesc(id, pageable);
     }
 
     @Override
-    public Page<ItemRequest> getAllRequestsCreatedAnotherUsers(Long id, Pageable pageable) throws ObjectNotFountException {
+    public List<ItemRequest> getAllRequestsCreatedAnotherUsers(Long id, Pageable pageable) throws ObjectNotFountException {
         userService.getUserById(id); // проверяем что пользователь с указанным id есть
         return requestRepository.findAllByRequesterIdNotOrderByCreatedDesc(id, pageable);
     }
@@ -51,5 +51,10 @@ public class RequestServiceImpl implements RequestService {
 
         log.warn("Запрос с указанным id {} получен", id);
         return itemRequest.get();
+    }
+
+    @Override
+    public void removeRequest(Long requestId) {
+        requestRepository.deleteById(requestId);
     }
 }

@@ -1,7 +1,6 @@
 package ru.practicum.shareit.item;
 
 
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import ru.practicum.shareit.booking.dto.CommentDto;
 import ru.practicum.shareit.booking.model.Booking;
@@ -29,11 +28,12 @@ public interface ItemService {
     Item getItemById(Long id) throws ObjectNotFountException;
 
     // Просмотр владельцем списка всех его вещей
-    Page<Item> getAllItemByUserId(Long id, Pageable pageable) throws ObjectNotFountException;
+    Collection<Item> getAllItemByUserId(Long id, Pageable pageable) throws ObjectNotFountException;
+
     Collection<Item> getAllItemByUserIdWithoutPagination(Long id) throws ObjectNotFountException;
 
     //Поиск вещи потенциальным арендатором по части названия или описания
-    Page<Item> searchItemByNameOrDescription(String text, Pageable pageable);
+    Collection<Item> searchItemByNameOrDescription(String text, Pageable pageable);
 
     // добавление комментария к вещи после бронирования
     Comment addNewComment(CommentDto commentDto, Long userId, Long itemId, Collection<Booking> bookings) throws ObjectNotFountException, ValidationException, ArgumentNotValidException;

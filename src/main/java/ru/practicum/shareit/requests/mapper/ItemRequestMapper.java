@@ -8,8 +8,6 @@ import ru.practicum.shareit.user.model.User;
 import java.util.ArrayList;
 import java.util.Collection;
 
-import static java.util.Collections.addAll;
-
 /**
  * класс преобразовывающий сущность запроса вещи в Dto и обратно
  */
@@ -23,7 +21,7 @@ public class ItemRequestMapper {
                     .description(i.getDescription())
                     .name(i.getName())
                     .available(i.getAvailable())
-                    .requestId(i.getRequest().getId())
+                    .requestId(i.getItemRequest().getId())
                     .build();
             itemsForRequest.add(item);
         });

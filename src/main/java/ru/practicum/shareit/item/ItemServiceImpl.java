@@ -2,7 +2,6 @@ package ru.practicum.shareit.item;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.booking.CommentService;
@@ -42,7 +41,7 @@ public class ItemServiceImpl implements ItemService {
         item.setOwner(user);
         if (itemDto.getRequestId() != null) {
             ItemRequest itemRequest = requestService.getRequestById(itemDto.getRequestId(), userId); // проверяем что указанный запрос существует и получаем его
-            item.setRequest(itemRequest);
+            item.setItemRequest(itemRequest);
         } else {
             item = ItemMapper.toItem(itemDto, user);
         }
@@ -82,7 +81,7 @@ public class ItemServiceImpl implements ItemService {
     public void removeItem(Long id, Long userId) throws ArgumentNotValidException, ObjectNotFountException {
         Item item = getItemById(id); // получаем вещь по Id
         userService.getUserById(userId); // проверяем что пользователь с таким id существует
-        if (!Objects.equals(item.getOwner().getId(), id)) { // проверяем что передан id владельца в заголовке
+        if (!Objects.equals(item.getOwner().getId(), userId)) { // проверяем что передан id владельца в заголовке
             log.warn("ItemServiceImpl.removeItem: Указан неверный id владельца вещи");
             throw new ArgumentNotValidException("Указан неверный id  владельца вещи");
         }
@@ -103,7 +102,7 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public Page<Item> getAllItemByUserId(Long id, Pageable pageable) throws ObjectNotFountException {
+    public Collection<Item> getAllItemByUserId(Long id, Pageable pageable) throws ObjectNotFountException {
         userService.getUserById(id); // проверяем что пользователь с таким id существует
         return itemRepository.findAllByOwnerIdOrderByIdAsc(id, pageable);
     }
@@ -115,8 +114,8 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public Page<Item> searchItemByNameOrDescription(String text, Pageable pageable) {
-        return itemRepository.findByNameOrDescriptionContainingIgnoreCaseAndAvailableTrue(text, text, pageable);
+    public Collection<Item> searchItemByNameOrDescription(String text, Pageable pageable) {
+        return itemRepository.findByNameContainingIgnoreCaseOrDescriptionContainingIgnoreCaseAndAvailableTrue(text, text, pageable);
     }
 
     @Override
@@ -125,6 +124,10 @@ public class ItemServiceImpl implements ItemService {
         User user = userService.getUserById(userId); // проверяем что пользователь с таким id существует
         Item item = getItemById(itemId); // проверяем что вещь с таким id существует
         Comment comment = CommentMapper.toComment(commentDto, user, item);
+        if (bookings.isEmpty()) {
+            log.error("ItemServiceImpl.addNewComment: Пользователь {} не делал бронирование указанной вещи", userId);
+            throw new ArgumentNotValidException("Пользователь " + userId + " не делал бронирование указанной вещи");
+        }
         for (Booking b : bookings) {
             if (!b.getItem().getId().equals(itemId)) {
                 log.error("ItemServiceImpl.addNewComment: Пользователь {} не делал бронирование указанной вещи", userId);
@@ -141,12 +144,12 @@ public class ItemServiceImpl implements ItemService {
         comment.setCreat(LocalDateTime.now());
         comment.setAuthor(user);
         comment.setItem(item);
-        comment = commentService.saveComment(comment);
+        comment = commentService.addNewComment(comment);
         return comment;
     }
 
     @Override
     public Collection<Item> findAllByRequestId(Long requestId) {
-        return itemRepository.findAllByRequestId(requestId);
+        return itemRepository.findAllByItemRequestId(requestId);
     }
 }

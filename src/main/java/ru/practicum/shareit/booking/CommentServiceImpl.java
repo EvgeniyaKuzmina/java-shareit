@@ -12,7 +12,7 @@ public class CommentServiceImpl implements CommentService {
     private final CommentRepository commentRepository;
 
     @Override
-    public Comment saveComment(Comment comment) {
+    public Comment addNewComment(Comment comment) {
         return commentRepository.save(comment);
     }
 

@@ -34,9 +34,9 @@ public class Item {
     @OneToOne
     @JoinColumn(name = "owner_id", nullable = false)
     private User owner;
-    @OneToOne
+    @ManyToOne
     @JoinColumn(name = "request_id")
-    private ItemRequest request;
+    private ItemRequest itemRequest;
     @ElementCollection
     @CollectionTable(name = "comments", joinColumns = @JoinColumn(name = "item_id"))
     @Column(name = "text")

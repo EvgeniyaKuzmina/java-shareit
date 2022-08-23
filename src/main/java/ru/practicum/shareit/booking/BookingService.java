@@ -1,6 +1,5 @@
 package ru.practicum.shareit.booking;
 
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.model.Booking;
@@ -25,27 +24,28 @@ public interface BookingService {
     //Получение данных о конкретном бронировании (включая его статус).
     Booking getBookingById(Long bookingId, Long userId) throws ValidationException, ObjectNotFountException;
 
-
     //Получение списка всех бронирований текущего пользователя.
     Collection<Booking> getBookingByBookerId(String state, Long bookerId, Pageable pageable) throws ValidationException, ObjectNotFountException;
 
-
     //Получение списка бронирований для всех вещей текущего пользователя.
     Collection<Booking> getBookingItemByOwnerId(String state, Long ownerId, Pageable pageable) throws ObjectNotFountException, ValidationException;
-
 
     // получение бронирования по Id
     Booking checkAndGetBookingById(Long id) throws ValidationException, ObjectNotFountException;
 
     // получение списка всех бронирований конкретного пользователя
-    Page<Booking> getAllBookingByBookerIdSortDesc(Long id, Pageable pageable) throws ObjectNotFountException, ValidationException;
+    Collection<Booking> getAllBookingByBookerIdSortDesc(Long id, Pageable pageable) throws ObjectNotFountException, ValidationException;
 
+    // получение всех бронирований по id создателя бронирования отсортированные в порядке возрастная id
     Collection<Booking> getAllBookingByBookerIdSortAsc(Long id);
 
     // получение последнего или следующего бронирования для указанной вещи
-   ItemDto.LastOrNextBooking getLastOrNextBookingForItem(Item item, Long userId, String parameter);
+    ItemDto.LastOrNextBooking getLastOrNextBookingForItem(Item item, Long userId, String parameter);
 
     // получение всех комментарий вещи
-    Collection<Comment> findAllByItemIdOrderByCreatDesc(Long itemId);
+    Collection<Comment> getAllCommentsByItemIdOrderByCreatDesc(Long itemId);
+
+    // удаление бронирования
+    void removeBooking(Long bookingId);
 
 }
