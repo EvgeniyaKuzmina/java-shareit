@@ -10,6 +10,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 import ru.practicum.shareit.item.ItemServiceImpl;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.requests.dto.ItemRequestDto;
@@ -33,6 +34,7 @@ class RequestControllerTest {
     private final ItemRequest itemRequest = ItemRequest.builder().id(1L).requester(user).description("запрос вещи").build();
     private final Item item = Item.builder().id(1L).name("Item1").description("Item").available(true).owner(user).itemRequest(itemRequest).build();
     private final ItemRequestDto itemRequestDto = ItemRequestDto.builder().description("запрос вещи").build();
+    private final ItemRequestDto wrongItemRequestDto = ItemRequestDto.builder().description("").build();
     @Autowired
     private ObjectMapper mapper;
     @MockBean
@@ -61,6 +63,24 @@ class RequestControllerTest {
                 .andExpect(jsonPath("$.description", is(itemRequest.getDescription())))
                 .andExpect(jsonPath("$.created", is(itemRequest.getCreated())))
                 .andExpect(jsonPath("$.requesterId", is(itemRequest.getRequester().getId()), Long.class));
+    }
+
+    // проверка создания запроса с пустым описанием
+    @Test
+    void testCreateRequestWithEmptyDescription() throws Exception {
+        Mockito.when(requestService.createRequest(any(), anyLong()))
+                .thenReturn(itemRequest);
+        Mockito.when(itemService.findAllByRequestId(anyLong()))
+                .thenReturn(List.of(item));
+
+        mvc.perform(post("/requests")
+                        .content(mapper.writeValueAsString(wrongItemRequestDto))
+                        .characterEncoding(StandardCharsets.UTF_8)
+                        .header("X-Sharer-User-Id", 1L)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andDo(MockMvcResultHandlers.print())
+                .andExpect(status().is(400));
     }
 
     // проверка получения всех запросов пользователя
