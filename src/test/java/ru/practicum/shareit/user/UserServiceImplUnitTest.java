@@ -44,6 +44,7 @@ class UserServiceImplUnitTest {
         userService = new UserServiceImpl(userRepository);
     }
 
+    // проверка создания ползователя
     @Test
     void testCreateUser() throws ConflictException {
 
