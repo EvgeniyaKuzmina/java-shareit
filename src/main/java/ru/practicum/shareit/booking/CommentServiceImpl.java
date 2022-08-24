@@ -21,4 +21,9 @@ public class CommentServiceImpl implements CommentService {
         return commentRepository.findAllByItemIdOrderByCreatDesc(itemId);
     }
 
+    @Override
+    public void removeComment(Long commentId) {
+        commentRepository.deleteById(commentId);
+    }
+
 }

@@ -23,6 +23,8 @@ import java.util.Optional;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.notNullValue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 
 @ExtendWith(MockitoExtension.class)
 @SpringBootTest
@@ -33,7 +35,6 @@ class UserServiceImplUnitTest {
     private final UserDto userDto = UserDto.builder().id(1L).name("User1").email("user1@user.com").build();
     private final User updUser = User.builder().id(1L).name("UserUpd").email("userUpd@user.com").build();
     private final UserDto updUserDto = UserDto.builder().id(1L).name("UserUpd").email("userUpd@user.com").build();
-
     @Mock
     private final UserRepository userRepository;
     private UserService userService;
@@ -44,11 +45,11 @@ class UserServiceImplUnitTest {
         userService = new UserServiceImpl(userRepository);
     }
 
-    // проверка создания ползователя
+    // проверка создания пользователя
     @Test
     void testCreateUser() throws ConflictException {
 
-        Mockito.when(userRepository.save(Mockito.any(User.class)))
+        Mockito.when(userRepository.save(any(User.class)))
                 .thenReturn(user);
 
         User user = userService.createUser(userDto);
@@ -58,9 +59,10 @@ class UserServiceImplUnitTest {
         assertThat(user.getEmail(), equalTo(userDto.getEmail()));
     }
 
+    // проверка создания пользователя с неверными данными
     @Test
     void testCreateSameUserWithException() {
-        Mockito.when(userRepository.save(Mockito.any(User.class)))
+        Mockito.when(userRepository.save(any(User.class)))
                 .thenThrow(new DataIntegrityViolationException("Пользователь с такими данными уже существует"));
 
         final ConflictException exception = Assertions.assertThrows(
@@ -70,13 +72,29 @@ class UserServiceImplUnitTest {
         Assertions.assertEquals("Пользователь с таким email " + userDto.getEmail() + " уже существует.", exception.getMessage());
     }
 
+    // проверка обновления пользователя с неверными данными
+    @Test
+    void testUpdateUserWithException() {
+        Mockito.when(userRepository.findById(anyLong()))
+                .thenReturn(Optional.of(updUser));
+        Mockito.when(userRepository.save(any(User.class)))
+                .thenThrow(new DataIntegrityViolationException("Пользователь с такими данными уже существует"));
+
+        final ConflictException exception = Assertions.assertThrows(
+                ConflictException.class,
+                () -> userService.updateUser(userDto, userDto.getId()));
+
+        Assertions.assertEquals("Пользователь с таким email " + userDto.getEmail() + " уже существует.", exception.getMessage());
+    }
+
+    // проверка обновления пользователя
     @Test
     void testUpdateUser() throws ConflictException, ObjectNotFountException {
 
-        Mockito.when(userRepository.save(Mockito.any(User.class)))
+        Mockito.when(userRepository.save(any(User.class)))
                 .thenReturn(updUser);
 
-        Mockito.when(userRepository.findById(Mockito.anyLong()))
+        Mockito.when(userRepository.findById(anyLong()))
                 .thenReturn(Optional.of(updUser));
 
         User user = userService.updateUser(updUserDto, updUserDto.getId());
@@ -88,7 +106,7 @@ class UserServiceImplUnitTest {
 
     @Test
     void testRemoveUser() throws ObjectNotFountException {
-        Mockito.when(userRepository.findById(Mockito.anyLong()))
+        Mockito.when(userRepository.findById(anyLong()))
                 .thenReturn(Optional.of(user));
 
         userService.removeUser(1L);
@@ -110,7 +128,7 @@ class UserServiceImplUnitTest {
 
     @Test
     void testGetUserByCorrectId() throws ObjectNotFountException {
-        Mockito.when(userRepository.findById(Mockito.anyLong()))
+        Mockito.when(userRepository.findById(anyLong()))
                 .thenReturn(Optional.of(user));
 
         User getUser = userService.getUserById(1L);
@@ -123,7 +141,7 @@ class UserServiceImplUnitTest {
 
     @Test
     void testGetUserByIncorrectIdThrowException() {
-        Mockito.when(userRepository.findById(Mockito.anyLong()))
+        Mockito.when(userRepository.findById(anyLong()))
                 .thenReturn(Optional.empty());
 
         final ObjectNotFountException exception = Assertions.assertThrows(
