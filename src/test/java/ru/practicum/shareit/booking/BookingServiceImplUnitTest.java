@@ -201,15 +201,85 @@ class BookingServiceImplUnitTest {
 
     }
 
-    // проверка получения списка бронирований по id пользователя, который делал бронирования
+    // проверка получения списка бронирований по id пользователя, который делал бронирования с сортировкой ALL
     @Test
-    void testGetBookingByBookerId() throws ObjectNotFountException, ValidationException {
+    void testGetBookingByBookerIdWithStateAll() throws ObjectNotFountException, ValidationException {
+        Pageable pageable = PageRequest.of(0, 10);
+        Mockito.when(userService.getUserById(anyLong()))
+                .thenReturn(user2);
+        Mockito.when(bookingRepository.findAllByBookerIdOrderByStartDesc(anyLong(), eq(pageable)))
+                .thenReturn(List.of(booking, pastBooking));
+        Collection<Booking> bookings = bookingService.getBookingByBookerId("ALL", user2.getId(), pageable);
+
+        assertThat(bookings.size(), equalTo(2));
+        assertThat(bookings, equalTo(List.of(booking, pastBooking)));
+    }
+
+    // проверка получения списка бронирований по id пользователя, который делал бронирования с сортировкой REJECTED
+    @Test
+    void testGetBookingByBookerIdWithStateRejected() throws ObjectNotFountException, ValidationException {
         Pageable pageable = PageRequest.of(0, 10);
         Mockito.when(userService.getUserById(anyLong()))
                 .thenReturn(user2);
         Mockito.when(bookingRepository.findAllByBookerIdOrderByStartDesc(anyLong(), eq(pageable)))
                 .thenReturn(List.of(booking));
-        Collection<Booking> bookings = bookingService.getBookingByBookerId("ALL", user2.getId(), pageable);
+        Collection<Booking> bookings = bookingService.getBookingByBookerId("REJECTED", user2.getId(), pageable);
+
+        assertThat(bookings.size(), equalTo(0));
+        assertThat(bookings, equalTo(List.of()));
+    }
+
+    // проверка получения списка бронирований по id пользователя, который делал бронирования с сортировкой PAST
+    @Test
+    void testGetBookingByBookerIdWithStatePast() throws ObjectNotFountException, ValidationException {
+        Pageable pageable = PageRequest.of(0, 10);
+        Mockito.when(userService.getUserById(anyLong()))
+                .thenReturn(user2);
+        Mockito.when(bookingRepository.findAllByBookerIdOrderByStartDesc(anyLong(), eq(pageable)))
+                .thenReturn(List.of(booking, pastBooking));
+        Collection<Booking> bookings = bookingService.getBookingByBookerId("PAST", user2.getId(), pageable);
+
+        assertThat(bookings.size(), equalTo(1));
+        assertThat(bookings, equalTo(List.of(pastBooking)));
+    }
+
+    // проверка получения списка бронирований по id пользователя, который делал бронирования с сортировкой CURRENT
+    @Test
+    void testGetBookingByBookerIdWithStateCurrent() throws ObjectNotFountException, ValidationException {
+        Pageable pageable = PageRequest.of(0, 10);
+        Mockito.when(userService.getUserById(anyLong()))
+                .thenReturn(user2);
+        Mockito.when(bookingRepository.findAllByBookerIdOrderByStartDesc(anyLong(), eq(pageable)))
+                .thenReturn(List.of(booking, pastBooking));
+        Collection<Booking> bookings = bookingService.getBookingByBookerId("CURRENT", user2.getId(), pageable);
+
+        assertThat(bookings.size(), equalTo(0));
+        assertThat(bookings, equalTo(List.of()));
+    }
+
+    // проверка получения списка бронирований по id пользователя, который делал бронирования с сортировкой FUTURE
+    @Test
+    void testGetBookingByBookerIdWithStateFuture() throws ObjectNotFountException, ValidationException {
+        Pageable pageable = PageRequest.of(0, 10);
+        Mockito.when(userService.getUserById(anyLong()))
+                .thenReturn(user2);
+        Mockito.when(bookingRepository.findAllByBookerIdOrderByStartDesc(anyLong(), eq(pageable)))
+                .thenReturn(List.of(booking, pastBooking));
+        Collection<Booking> bookings = bookingService.getBookingByBookerId("FUTURE", user2.getId(), pageable);
+
+        assertThat(bookings.size(), equalTo(1));
+        assertThat(bookings, equalTo(List.of(booking)));
+    }
+
+    // проверка получения списка бронирований по id пользователя, который делал бронирования с сортировкой WAITING
+    @Test
+    void testGetBookingByBookerIdWithStateWaiting() throws ObjectNotFountException, ValidationException {
+        Pageable pageable = PageRequest.of(0, 10);
+        Mockito.when(userService.getUserById(anyLong()))
+                .thenReturn(user2);
+        Mockito.when(bookingRepository.findAllByBookerIdOrderByStartDesc(anyLong(), eq(pageable)))
+                .thenReturn(List.of(booking, pastBooking));
+        Collection<Booking> bookings = bookingService.getBookingByBookerId("WAITING", user2.getId(), pageable);
 
         assertThat(bookings.size(), equalTo(1));
         assertThat(bookings, equalTo(List.of(booking)));
