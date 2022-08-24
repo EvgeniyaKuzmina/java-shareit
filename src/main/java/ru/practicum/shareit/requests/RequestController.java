@@ -3,6 +3,7 @@ package ru.practicum.shareit.requests;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.exception.ArgumentNotValidException;
 import ru.practicum.shareit.exception.ObjectNotFountException;
@@ -28,6 +29,7 @@ import java.util.Optional;
 @RestController
 @RequestMapping(path = "/requests")
 @Slf4j
+@Validated
 public class RequestController {
 
     private static final String FROM = "0";
@@ -64,7 +66,8 @@ public class RequestController {
                                                              @RequestParam(required = false, defaultValue = SIZE) @Positive String size)
             throws ObjectNotFountException {
 
-        Pageable pageable = PageRequest.of(Integer.parseInt(from), Integer.parseInt(size));
+        int page = Integer.parseInt(from) / Integer.parseInt(size);
+        Pageable pageable = PageRequest.of(page, Integer.parseInt(size));
         List<ItemRequest> itemRequestPage = requestService.getAllRequestsByUserId(requesterId, pageable);
 
         return toListItemRequestDto(itemRequestPage);
@@ -77,7 +80,8 @@ public class RequestController {
                                                                         @RequestParam(required = false, defaultValue = SIZE) @Positive String size)
             throws ObjectNotFountException {
 
-        Pageable pageable = PageRequest.of(Integer.parseInt(from), Integer.parseInt(size));
+        int page = Integer.parseInt(from) / Integer.parseInt(size);
+        Pageable pageable = PageRequest.of(page, Integer.parseInt(size));
         List<ItemRequest> itemRequestPage = requestService.getAllRequestsCreatedAnotherUsers(requesterId, pageable);
 
         return toListItemRequestDto(itemRequestPage);

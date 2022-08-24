@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.mapper.BookingMapper;
@@ -26,6 +27,7 @@ import java.util.Collection;
 @RequestMapping(path = "/bookings")
 @RequiredArgsConstructor
 @Slf4j
+@Validated
 public class BookingController {
     private static final String HEADER_REQUEST = "X-Sharer-User-Id"; // заголовок запроса в котором передаётся id пользователя
 
@@ -72,8 +74,8 @@ public class BookingController {
                                                        @RequestParam(required = false, defaultValue = SIZE) @Positive String size)
 
             throws ObjectNotFountException, ValidationException {
-
-        Pageable pageable = PageRequest.of(Integer.parseInt(from), Integer.parseInt(size));
+        int page = Integer.parseInt(from) / Integer.parseInt(size);
+        Pageable pageable = PageRequest.of(page, Integer.parseInt(size));
         Collection<Booking> bookings = bookingService.getBookingByBookerId(state, bookerId, pageable);
         Collection<BookingDto> bookingsDto = new ArrayList<>();
         bookings.forEach(b -> bookingsDto.add(BookingMapper.toBookingDto(b)));
@@ -87,8 +89,8 @@ public class BookingController {
                                                           @RequestParam(required = false, defaultValue = FROM) @PositiveOrZero String from,
                                                           @RequestParam(required = false, defaultValue = SIZE) @Positive String size)
             throws ObjectNotFountException, ValidationException {
-
-        Pageable pageable = PageRequest.of(Integer.parseInt(from), Integer.parseInt(size));
+        int page = Integer.parseInt(from) / Integer.parseInt(size);
+        Pageable pageable = PageRequest.of(page, Integer.parseInt(size));
         Collection<Booking> bookings = bookingService.getBookingItemByOwnerId(state, ownerId, pageable);
         Collection<BookingDto> bookingsDto = new ArrayList<>();
         bookings.forEach(b -> bookingsDto.add(BookingMapper.toBookingDto(b)));

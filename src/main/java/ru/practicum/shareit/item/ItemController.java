@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.booking.BookingService;
 import ru.practicum.shareit.booking.dto.CommentDto;
@@ -31,6 +32,7 @@ import java.util.List;
 @RequestMapping("/items")
 @RequiredArgsConstructor
 @Slf4j
+@Validated
 public class ItemController {
 
     private static final String HEADER_REQUEST = "X-Sharer-User-Id"; // заголовок запроса в котором передаётся id владельца вещи
@@ -93,7 +95,8 @@ public class ItemController {
                                                   @RequestParam(required = false, defaultValue = SIZE) @Positive String size)
             throws ObjectNotFountException {
 
-        Pageable pageable = PageRequest.of(Integer.parseInt(from), Integer.parseInt(size));
+        int page = Integer.parseInt(from) / Integer.parseInt(size);
+        Pageable pageable = PageRequest.of(page, Integer.parseInt(size));
         Collection<ItemDto> itemsDto = new ArrayList<>();
         Collection<Item> items = itemService.getAllItemByUserId(userId, pageable);
         fillItemDto(items, itemsDto, userId);
@@ -110,7 +113,8 @@ public class ItemController {
             return List.of();
         }
 
-        Pageable pageable = PageRequest.of(Integer.parseInt(from), Integer.parseInt(size));
+        int page = Integer.parseInt(from) / Integer.parseInt(size);
+        Pageable pageable = PageRequest.of(page, Integer.parseInt(size));
         Collection<Item> items = itemService.searchItemByNameOrDescription(text, pageable);
         Collection<ItemDto> itemsDto = new ArrayList<>();
         fillItemDto(items, itemsDto, userId);

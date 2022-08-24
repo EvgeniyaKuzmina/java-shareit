@@ -12,6 +12,7 @@ import ru.practicum.shareit.exception.ConflictException;
 import ru.practicum.shareit.exception.ObjectNotFountException;
 import ru.practicum.shareit.exception.ValidationException;
 
+import javax.validation.ConstraintViolationException;
 import java.util.List;
 
 @RestControllerAdvice
@@ -64,4 +65,9 @@ public class ErrorHandler {
         return new ErrorResponse(e.getMessage());
     }
 
+    @ExceptionHandler(ConstraintViolationException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponse handlerConstraintViolationException(ConstraintViolationException e) {
+        return new ErrorResponse(e.getMessage());
+    }
 }
