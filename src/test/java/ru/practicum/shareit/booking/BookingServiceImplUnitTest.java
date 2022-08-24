@@ -215,6 +215,22 @@ class BookingServiceImplUnitTest {
         assertThat(bookings, equalTo(List.of(booking)));
     }
 
+    // проверка получения списка бронирований по id пользователя, если передана неверное значение для сортировки
+    @Test
+    void testGetBookingByBookerIdWithValidationException() throws ObjectNotFountException, ValidationException {
+        Pageable pageable = PageRequest.of(0, 10);
+        Mockito.when(userService.getUserById(anyLong()))
+                .thenReturn(user2);
+        Mockito.when(bookingRepository.findAllByBookerIdOrderByStartDesc(anyLong(), eq(pageable)))
+                .thenReturn(List.of(booking));
+
+        final ValidationException exception = Assertions.assertThrows(
+                ValidationException.class,
+                () -> bookingService.getBookingByBookerId("ВСЕ", user2.getId(), pageable));
+
+        Assertions.assertEquals("Unknown state: ВСЕ", exception.getMessage());
+    }
+
     // проверка получения списка бронирований конкретной вещи по id владельца вещи
     @Test
     void testGetBookingItemByOwnerId() throws ObjectNotFountException, ValidationException {
