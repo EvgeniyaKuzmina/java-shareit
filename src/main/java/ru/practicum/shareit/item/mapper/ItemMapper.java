@@ -4,8 +4,6 @@ import org.springframework.stereotype.Component;
 import ru.practicum.shareit.booking.dto.CommentDto;
 import ru.practicum.shareit.booking.mapper.CommentMapper;
 import ru.practicum.shareit.booking.model.Comment;
-import ru.practicum.shareit.exception.ObjectNotFountException;
-import ru.practicum.shareit.exception.ValidationException;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.model.User;
@@ -21,8 +19,7 @@ import java.util.Collection;
 public class ItemMapper {
 
     public static ItemDto toItemDto(Item item, ItemDto.LastOrNextBooking lastBooking,
-                                    ItemDto.LastOrNextBooking nextBooking, Collection<Comment> comments)
-            throws ValidationException, ObjectNotFountException {
+                                    ItemDto.LastOrNextBooking nextBooking, Collection<Comment> comments) {
         Collection<CommentDto> commentsDto = new ArrayList<>();
         comments.forEach(c -> commentsDto.add(CommentMapper.toCommentDto(c)));
         ItemDto itemDto = ItemDto.builder()

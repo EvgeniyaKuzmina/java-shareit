@@ -22,7 +22,7 @@ public interface BookingService {
     Booking processingBookingRequest(Long bookingId, Long ownerId, Boolean result) throws ValidationException, ObjectNotFountException, ArgumentNotValidException;
 
     //Получение данных о конкретном бронировании (включая его статус).
-    Booking getBookingById(Long bookingId, Long userId) throws ValidationException, ObjectNotFountException;
+    Booking getBookingById(Long bookingId, Long userId) throws ObjectNotFountException;
 
     //Получение списка всех бронирований текущего пользователя.
     Collection<Booking> getBookingByBookerId(String state, Long bookerId, Pageable pageable) throws ValidationException, ObjectNotFountException;

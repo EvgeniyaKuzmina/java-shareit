@@ -1,6 +1,5 @@
 package ru.practicum.shareit.user;
 
-import lombok.Builder;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -17,7 +16,6 @@ import java.util.Optional;
 @Service
 @Slf4j
 @RequiredArgsConstructor
-@Builder
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
