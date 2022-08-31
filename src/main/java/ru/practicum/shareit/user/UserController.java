@@ -22,7 +22,7 @@ import java.util.Collection;
 @Slf4j
 public class UserController {
 
-    private final UserServiceImpl userServiceImpl;
+    private final UserService userServiceImpl;
 
     @Autowired
     public UserController(UserServiceImpl userServiceImpl) {

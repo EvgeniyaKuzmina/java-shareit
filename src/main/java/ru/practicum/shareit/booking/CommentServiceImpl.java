@@ -12,13 +12,18 @@ public class CommentServiceImpl implements CommentService {
     private final CommentRepository commentRepository;
 
     @Override
-    public Comment saveComment(Comment comment) {
+    public Comment addNewComment(Comment comment) {
         return commentRepository.save(comment);
     }
 
     @Override
     public Collection<Comment> findAllByItemIdOrderByCreatDesc(Long itemId) {
         return commentRepository.findAllByItemIdOrderByCreatDesc(itemId);
+    }
+
+    @Override
+    public void removeComment(Long commentId) {
+        commentRepository.deleteById(commentId);
     }
 
 }

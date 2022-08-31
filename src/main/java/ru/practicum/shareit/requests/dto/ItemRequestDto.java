@@ -2,9 +2,9 @@ package ru.practicum.shareit.requests.dto;
 
 import lombok.Builder;
 import lombok.Data;
-import ru.practicum.shareit.user.model.User;
 
 import java.time.LocalDateTime;
+import java.util.Collection;
 
 /**
  * класс для работы с ItemRequest возвращающий сущность пользователем
@@ -15,6 +15,17 @@ import java.time.LocalDateTime;
 public class ItemRequestDto {
     private Long id;
     private String description;
-    private User requester;
+    private Long requesterId;
     private LocalDateTime created;
+    private Collection<Item> items;
+
+    @Data
+    @Builder
+    public static class Item {
+        private Long id;
+        private String name;
+        private String description;
+        private Boolean available;
+        private Long requestId;
+    }
 }

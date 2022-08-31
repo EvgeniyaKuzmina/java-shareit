@@ -20,23 +20,10 @@ public class ItemDto {
     private String description;
     private Long ownerId;
     private Boolean available;
-    private String request;
+    private Long requestId;
     private LastOrNextBooking lastBooking;
     private LastOrNextBooking nextBooking;
 
-    @Data
-    @Builder
-    public static class ItemDtoWithComments {
-        private Long id;
-        private String name;
-        private String description;
-        private Long ownerId;
-        private Boolean available;
-        private String request;
-        private LastOrNextBooking lastBooking;
-        private LastOrNextBooking nextBooking;
-        private Collection<CommentDto> comments;
-    }
 
     @Data
     @Builder
@@ -45,6 +32,13 @@ public class ItemDto {
         Long bookerId;
         LocalDateTime start;
         LocalDateTime end;
+    }
+
+    @Data
+    @Builder
+    public static class ItemRequest {
+        private Long id;
+        private String description;
     }
 
 

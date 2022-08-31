@@ -6,7 +6,12 @@ import java.util.Collection;
 
 public interface CommentService {
 
-    Comment saveComment(Comment comment);
+    // добавление нового комментария
+    Comment addNewComment(Comment comment);
 
+    // получение списка комментариев по id вещи отсортированные по дате создания от более раннего к более позднему
     Collection<Comment> findAllByItemIdOrderByCreatDesc(Long itemId);
+
+    // удаление комментария
+    void removeComment(Long commentId);
 }

@@ -2,6 +2,9 @@ package ru.practicum.shareit.item;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.booking.BookingService;
 import ru.practicum.shareit.booking.dto.CommentDto;
@@ -16,6 +19,8 @@ import ru.practicum.shareit.item.mapper.ItemMapper;
 import ru.practicum.shareit.item.model.Item;
 
 import javax.validation.Valid;
+import javax.validation.constraints.Positive;
+import javax.validation.constraints.PositiveOrZero;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -27,12 +32,14 @@ import java.util.List;
 @RequestMapping("/items")
 @RequiredArgsConstructor
 @Slf4j
+@Validated
 public class ItemController {
 
     private static final String HEADER_REQUEST = "X-Sharer-User-Id"; // заголовок запроса в котором передаётся id владельца вещи
     private static final String LAST = "LAST";
     private static final String NEXT = "NEXT";
-
+    private static final String FROM = "0";
+    private static final String SIZE = "10";
     private final ItemService itemService;
     private final BookingService bookingService;
 
@@ -48,18 +55,19 @@ public class ItemController {
         Item item = itemService.createItem(itemDto, userId);
         ItemDto.LastOrNextBooking lastBooking = bookingService.getLastOrNextBookingForItem(item, userId, LAST);
         ItemDto.LastOrNextBooking nextBooking = bookingService.getLastOrNextBookingForItem(item, userId, NEXT);
-        Collection<Comment> comments = bookingService.findAllByItemIdOrderByCreatDesc(item.getId());
+        Collection<Comment> comments = bookingService.getAllCommentsByItemIdOrderByCreatDesc(item.getId());
         return ItemMapper.toItemDto(item, lastBooking, nextBooking, comments);
     }
 
     // обновление данных о вещи
     @PatchMapping(value = {"/{id}"})
-    public ItemDto updateItem(@Valid @RequestBody ItemDto itemDto, @PathVariable Long id,
-                              @RequestHeader(HEADER_REQUEST) Long userId) throws ObjectNotFountException, ValidationException {
+    public ItemDto updateItem(@Valid @RequestBody ItemDto itemDto,
+                              @PathVariable Long id,
+                              @RequestHeader(HEADER_REQUEST) Long userId) throws ObjectNotFountException, ValidationException, ArgumentNotValidException {
         Item item = itemService.updateItem(itemDto, id, userId);
         ItemDto.LastOrNextBooking lastBooking = bookingService.getLastOrNextBookingForItem(item, userId, LAST);
         ItemDto.LastOrNextBooking nextBooking = bookingService.getLastOrNextBookingForItem(item, userId, NEXT);
-        Collection<Comment> comments = bookingService.findAllByItemIdOrderByCreatDesc(item.getId());
+        Collection<Comment> comments = bookingService.getAllCommentsByItemIdOrderByCreatDesc(item.getId());
         return ItemMapper.toItemDto(item, lastBooking, nextBooking, comments);
     }
 
@@ -76,28 +84,38 @@ public class ItemController {
         Item item = itemService.getItemById(id);
         ItemDto.LastOrNextBooking lastBooking = bookingService.getLastOrNextBookingForItem(item, userId, LAST);
         ItemDto.LastOrNextBooking nextBooking = bookingService.getLastOrNextBookingForItem(item, userId, NEXT);
-        Collection<Comment> comments = bookingService.findAllByItemIdOrderByCreatDesc(item.getId());
+        Collection<Comment> comments = bookingService.getAllCommentsByItemIdOrderByCreatDesc(item.getId());
         return ItemMapper.toItemDto(item, lastBooking, nextBooking, comments);
     }
 
-    // получение владельцем списка всех его вещей с комментариями
+    // получение владельцем списка всех его вещей с комментариями. Эндпоинт GET items?from={from}&size={size}
     @GetMapping
-    public Collection<ItemDto> getAllItem(@RequestHeader(HEADER_REQUEST) Long userId)
-            throws ObjectNotFountException, ValidationException {
+    public Collection<ItemDto> getAllItemByUserId(@RequestHeader(HEADER_REQUEST) Long userId,
+                                                  @RequestParam(required = false, defaultValue = FROM) @PositiveOrZero String from,
+                                                  @RequestParam(required = false, defaultValue = SIZE) @Positive String size)
+            throws ObjectNotFountException {
+
+        int page = Integer.parseInt(from) / Integer.parseInt(size);
+        Pageable pageable = PageRequest.of(page, Integer.parseInt(size));
         Collection<ItemDto> itemsDto = new ArrayList<>();
-        Collection<Item> items = itemService.getAllItemByUserId(userId);
+        Collection<Item> items = itemService.getAllItemByUserId(userId, pageable);
         fillItemDto(items, itemsDto, userId);
         return itemsDto;
     }
 
-    // поиск вещи по части строки в названии или в описании
+    // поиск вещи по части строки в названии или в описании. Эндпоинт GET items/search??text={text}&&from={from}&size={size}
     @GetMapping("/search")
     public Collection<ItemDto> searchItemByNameOrDescription(@RequestParam String text,
-                                                             @RequestHeader(HEADER_REQUEST) Long userId) {
+                                                             @RequestHeader(HEADER_REQUEST) Long userId,
+                                                             @RequestParam(required = false, defaultValue = FROM) @PositiveOrZero String from,
+                                                             @RequestParam(required = false, defaultValue = SIZE) @Positive String size) {
         if (text.isEmpty()) {
             return List.of();
         }
-        Collection<Item> items = itemService.searchItemByNameOrDescription(text);
+
+        int page = Integer.parseInt(from) / Integer.parseInt(size);
+        Pageable pageable = PageRequest.of(page, Integer.parseInt(size));
+        Collection<Item> items = itemService.searchItemByNameOrDescription(text, pageable);
         Collection<ItemDto> itemsDto = new ArrayList<>();
         fillItemDto(items, itemsDto, userId);
         return itemsDto;
@@ -105,7 +123,8 @@ public class ItemController {
 
     // добавление комментария к вещи после бронирования
     @PostMapping(value = {"/{itemId}/comment"})
-    public CommentDto addNewComment(@Valid @RequestBody CommentDto commentDto, @RequestHeader(HEADER_REQUEST) Long userId,
+    public CommentDto addNewComment(@Valid @RequestBody CommentDto commentDto,
+                                    @RequestHeader(HEADER_REQUEST) Long userId,
                                     @PathVariable Long itemId) throws ArgumentNotValidException, ValidationException, ObjectNotFountException {
         if (commentDto.getText().isEmpty()) {
             log.error("ItemController.addNewComment: Комментарий пустой");
@@ -121,7 +140,7 @@ public class ItemController {
         items.forEach(i -> {
             ItemDto.LastOrNextBooking lastBooking = bookingService.getLastOrNextBookingForItem(i, userId, LAST);
             ItemDto.LastOrNextBooking nextBooking = bookingService.getLastOrNextBookingForItem(i, userId, NEXT);
-            Collection<Comment> comments = bookingService.findAllByItemIdOrderByCreatDesc(i.getId());
+            Collection<Comment> comments = bookingService.getAllCommentsByItemIdOrderByCreatDesc(i.getId());
             try {
                 itemsDto.add(ItemMapper.toItemDto(i, lastBooking, nextBooking, comments));
             } catch (ValidationException | ObjectNotFountException e) {
@@ -129,4 +148,5 @@ public class ItemController {
             }
         });
     }
+
 }
