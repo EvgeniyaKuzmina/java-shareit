@@ -38,12 +38,7 @@ public class BookingController {
     @PostMapping
     public BookingDto createBooking(@Valid @RequestBody BookingDto bookingDto, @RequestHeader(HEADER_REQUEST) Long userId)
             throws ValidationException, ObjectNotFountException, ArgumentNotValidException {
-      /*  if (bookingDto.getStart().isAfter(bookingDto.getEnd())) {
-            throw new ArgumentNotValidException("Дата начала бронирования не может быть позднее даты окончания бронирования");
-        }
-        if (bookingDto.getStart().isBefore(LocalDateTime.now())) {
-            throw new ArgumentNotValidException("Дата начала бронирования не может быть ранее текущей даты");
-        }*/
+
         Booking booking = bookingService.creatNewBooking(bookingDto, userId);
         return BookingMapper.toBookingDto(booking);
     }

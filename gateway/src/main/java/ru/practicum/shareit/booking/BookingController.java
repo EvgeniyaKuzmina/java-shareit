@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.dto.BookingState;
 import ru.practicum.shareit.exception.ArgumentNotValidException;
+import ru.practicum.shareit.exception.ValidationException;
 
 import javax.validation.Valid;
 import javax.validation.constraints.Positive;
@@ -29,7 +30,6 @@ public class BookingController {
     public ResponseEntity<Object> createBooking(@Valid @RequestBody BookingDto bookingDto,
                                                 @RequestHeader(HEADER_REQUEST) Long userId)
             throws ArgumentNotValidException {
-        log.info(bookingDto.toString());
         if (bookingDto.getStart().isAfter(bookingDto.getEnd())) {
             throw new ArgumentNotValidException("Дата начала бронирования не может быть позднее даты окончания бронирования");
         }
@@ -56,24 +56,32 @@ public class BookingController {
 
     //Получение списка всех бронирований текущего пользователя.
     @GetMapping
-    public ResponseEntity<Object> getBookingByBookerId(@RequestParam(required = false, defaultValue = STATE) String stateParam,
+    public ResponseEntity<Object> getBookingByBookerId(@RequestParam(required = false) String stateParam,
                                                        @RequestHeader(HEADER_REQUEST) Long bookerId,
-                                                       @RequestParam(required = false, defaultValue = FROM) @PositiveOrZero String from,
-                                                       @RequestParam(required = false, defaultValue = SIZE) @Positive String size) {
-        BookingState state = BookingState.from(stateParam)
-                .orElseThrow(() -> new IllegalArgumentException("Unknown state: " + stateParam));
+                                                       @RequestParam(defaultValue = FROM) @PositiveOrZero String from,
+                                                       @RequestParam(defaultValue = SIZE) @Positive String size) throws ValidationException {
+        log.info(stateParam);
+        if (stateParam == null) {
+            stateParam = STATE;
+        }
+        BookingState state = BookingState.getState(stateParam);
+        log.info(state.toString());
         log.info("gateway: BookingController: getBookingByBookerId():Get booking with state {}, bookerId={}, from={}, size={}", stateParam, bookerId, from, size);
         return bookingClient.getBookingByBookerId(state, bookerId, from, size);
     }
 
     //Получение списка бронирований для всех вещей текущего пользователя. Эндпоинт GET /bookings/owner
     @GetMapping(path = "/owner")
-    public ResponseEntity<Object> getBookingItemByOwnerId(@RequestParam(required = false, defaultValue = STATE) String stateParam,
+    public ResponseEntity<Object> getBookingItemByOwnerId(@RequestParam(required = false) String stateParam,
                                                           @RequestHeader(HEADER_REQUEST) Long ownerId,
-                                                          @RequestParam(required = false, defaultValue = FROM) @PositiveOrZero String from,
-                                                          @RequestParam(required = false, defaultValue = SIZE) @Positive String size) {
-        BookingState state = BookingState.from(stateParam)
-                .orElseThrow(() -> new IllegalArgumentException("Unknown state: " + stateParam));
+                                                          @RequestParam(defaultValue = FROM) @PositiveOrZero String from,
+                                                          @RequestParam(defaultValue = SIZE) @Positive String size) throws ValidationException {
+        log.info(stateParam);
+        if (stateParam == null) {
+            stateParam = STATE;
+        }
+        BookingState state = BookingState.getState(stateParam);
+        log.info(state.toString());
         log.info("gateway: BookingController: getBookingItemByOwnerId(): Get booking with state {}, ownerId={}, from={}, size={}", state.name(), ownerId, from, size);
         return bookingClient.getBookingItemByOwnerId(state, ownerId, from, size);
     }
