@@ -4,10 +4,11 @@ services:
     build: gateway
     ports:
       - "8080:8080"
+      - "8081:8081"
     depends_on:
       - server
     environment:
-      - SHAREIT_SERVER_URL=http://localhost:9090
+      - SHAREIT_SERVER_URL=http://server:9090
 
   server:
       build: server
@@ -16,19 +17,14 @@ services:
       depends_on:
         - db
       environment:
-        - SPRING_DATASOURCE_URL=jdbc:postgresql://localhost:5432/postgres
-        - POSTGRES_USER=postgres
-        - POSTGRES_PASSWORD=1234
-        #- DB_NAME=postgres
-        #- POSTGRES_USER=postgres
-        #- POSTGRES_PASSWORD=1234
-        #- DB_HOST=db
-        #- DB_PORT=5432
-
+        - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/postgres
+        - SPRING_DATASOURCE_USERNAME=postgres
+        - SPRING_DATASOURCE_PASSWORD=1234
 
   db:
       image: postgres:13.7-alpine
       ports:
+
         - "6541:5432"
 
       volumes:

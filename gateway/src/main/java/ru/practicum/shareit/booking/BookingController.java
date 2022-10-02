@@ -3,7 +3,6 @@ package ru.practicum.shareit.booking;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.booking.dto.BookingDto;
@@ -15,11 +14,10 @@ import javax.validation.constraints.Positive;
 import javax.validation.constraints.PositiveOrZero;
 import java.time.LocalDateTime;
 
-@Controller
 @RequestMapping(path = "/bookings")
-@RequiredArgsConstructor
 @Slf4j
-@Validated
+@RestController
+@RequiredArgsConstructor
 public class BookingController {
     private static final String HEADER_REQUEST = "X-Sharer-User-Id"; // заголовок запроса в котором передаётся id пользователя
     private static final String FROM = "0";
@@ -27,19 +25,18 @@ public class BookingController {
     private static final String STATE = "ALL";
     private final BookingClient bookingClient;
 
-
     // Добавление нового запроса на бронирование.
     @PostMapping
     public ResponseEntity<Object> createBooking(@Valid @RequestBody BookingDto bookingDto,
                                                 @RequestHeader(HEADER_REQUEST) Long userId)
             throws ArgumentNotValidException {
+        log.info(bookingDto.toString());
         if (bookingDto.getStart().isAfter(bookingDto.getEnd())) {
             throw new ArgumentNotValidException("Дата начала бронирования не может быть позднее даты окончания бронирования");
         }
         if (bookingDto.getStart().isBefore(LocalDateTime.now())) {
             throw new ArgumentNotValidException("Дата начала бронирования не может быть ранее текущей даты");
         }
-        log.info("Create booking for user id {}, bookingName={}", userId, bookingDto.getItem().getName());
         return bookingClient.creatBooking(bookingDto, userId);
     }
 

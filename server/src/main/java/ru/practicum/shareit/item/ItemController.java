@@ -23,6 +23,7 @@ import javax.validation.constraints.Positive;
 import javax.validation.constraints.PositiveOrZero;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 /**
  * контроллер для работы с объектом вещь
@@ -45,7 +46,7 @@ public class ItemController {
     // создание вещи
     @PostMapping
     public ItemDto createItem(@Valid @RequestBody ItemDto itemDto, @RequestHeader(HEADER_REQUEST) Long userId)
-            throws ArgumentNotValidException, ObjectNotFountException, ValidationException {
+            throws ArgumentNotValidException, ObjectNotFountException {
         if (itemDto.getAvailable() == null || itemDto.getName() == null ||
                 itemDto.getName().isEmpty() || itemDto.getDescription() == null) {
             log.warn("Не указано имя, описание товара или параметр доступности");
@@ -89,10 +90,10 @@ public class ItemController {
 
     // получение владельцем списка всех его вещей с комментариями. Эндпоинт GET items?from={from}&size={size}
     @GetMapping
-    public Collection<ItemDto> getAllItemByUserIdgetAllItemByUserId(@RequestHeader(HEADER_REQUEST) Long ownerId,
+    public Collection<ItemDto> getAllItemByUserId(@RequestHeader(HEADER_REQUEST) Long ownerId,
                                                                     @RequestParam(required = false, defaultValue = FROM) @PositiveOrZero String from,
                                                                     @RequestParam(required = false, defaultValue = SIZE) @Positive String size)
-    throws ObjectNotFountException {
+            throws ObjectNotFountException {
 
         int page = Integer.parseInt(from) / Integer.parseInt(size);
         Pageable pageable = PageRequest.of(page, Integer.parseInt(size));
@@ -108,6 +109,12 @@ public class ItemController {
                                                              @RequestHeader(HEADER_REQUEST) Long userId,
                                                              @RequestParam(required = false, defaultValue = FROM) @PositiveOrZero String from,
                                                              @RequestParam(required = false, defaultValue = SIZE) @Positive String size) {
+        if (text == null) {
+            return List.of();
+        }
+        if (text.isEmpty()) {
+            return List.of();
+        }
         int page = Integer.parseInt(from) / Integer.parseInt(size);
         Pageable pageable = PageRequest.of(page, Integer.parseInt(size));
         Collection<Item> items = itemService.searchItemByNameOrDescription(text, pageable);

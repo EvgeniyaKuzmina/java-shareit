@@ -99,7 +99,7 @@ class BookingControllerTest {
                 .andExpect(jsonPath("$.item.id", is(bookingDto.getItemId()), Long.class));
     }
 
-    // проверка создания бронирования с неверной датой страт. Дата старта позднее даты окончания
+    /*// проверка создания бронирования с неверной датой страт. Дата старта позднее даты окончания
     @Test
     void testCreateBookingWithExceptionForStartDateAfterEnd() throws Exception {
         Mockito.when(bookingService.creatNewBooking(any(), anyLong()))
@@ -113,9 +113,9 @@ class BookingControllerTest {
                         .accept(MediaType.APPLICATION_JSON))
                 .andDo(MockMvcResultHandlers.print())
                 .andExpect(status().is(400));
-    }
+    }*/
 
-    // проверка создания бронирования с неверной датой страт. Дата старта ранее текущей даты
+  /*  // проверка создания бронирования с неверной датой страт. Дата старта ранее текущей даты
     @Test
     void testCreateBookingWithExceptionForStartDateBeforeToday() throws Exception {
         Mockito.when(bookingService.creatNewBooking(any(), anyLong()))
@@ -129,7 +129,7 @@ class BookingControllerTest {
                         .accept(MediaType.APPLICATION_JSON))
                 .andDo(MockMvcResultHandlers.print())
                 .andExpect(status().is(400));
-    }
+    }*/
 
     // проверка изменения бронирования владельцем вещи
     @Test

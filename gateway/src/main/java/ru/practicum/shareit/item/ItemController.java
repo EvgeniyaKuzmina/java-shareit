@@ -14,6 +14,7 @@ import ru.practicum.shareit.item.dto.ItemDto;
 import javax.validation.Valid;
 import javax.validation.constraints.Positive;
 import javax.validation.constraints.PositiveOrZero;
+import java.util.List;
 
 /**
  * контроллер для работы с объектом вещь
@@ -78,9 +79,6 @@ public class ItemController {
                                                                 @RequestHeader(HEADER_REQUEST) Long userId,
                                                                 @RequestParam(required = false, defaultValue = FROM) @PositiveOrZero String from,
                                                                 @RequestParam(required = false, defaultValue = SIZE) @Positive String size) {
-        if (text.isEmpty()) {
-            return new ResponseEntity<>(HttpStatus.OK);
-        }
         return itemClient.searchItemByNameOrDescription(text, userId, from, size);
     }
 

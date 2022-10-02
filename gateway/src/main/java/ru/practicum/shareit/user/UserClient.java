@@ -7,14 +7,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.util.DefaultUriBuilderFactory;
 import ru.practicum.shareit.client.BaseClient;
-import ru.practicum.shareit.exception.ArgumentNotValidException;
 import ru.practicum.shareit.user.dto.UserDto;
-
-import javax.validation.Valid;
 
 @Service
 public class UserClient extends BaseClient {
@@ -32,22 +27,22 @@ public class UserClient extends BaseClient {
     }
 
     // создание пользователя
-    public ResponseEntity<Object> createUser(UserDto userDto) throws ArgumentNotValidException {
+    public ResponseEntity<Object> createUser(UserDto userDto) {
         return post("", userDto);
     }
 
     // обновление пользователя
-    public ResponseEntity<Object> updateUser(@Valid @RequestBody UserDto userDto, @PathVariable Long id) {
+    public ResponseEntity<Object> updateUser(UserDto userDto, Long id) {
         return patch("/" + id, userDto);
     }
 
     // удаление пользователя по id
-    public ResponseEntity<Object>  removeUser(@PathVariable Long id) {
-        return delete("" + id);
+    public ResponseEntity<Object> removeUser(Long id) {
+        return delete("/" + id);
     }
 
     // получение пользователя по Id
-    public ResponseEntity<Object> getUserById(@PathVariable Long id) {
+    public ResponseEntity<Object> getUserById(Long id) {
         return get("/" + id);
     }
 
