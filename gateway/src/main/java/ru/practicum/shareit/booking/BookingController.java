@@ -8,7 +8,6 @@ import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.dto.BookingStatus;
 import ru.practicum.shareit.exception.ArgumentNotValidException;
-import ru.practicum.shareit.exception.ValidationException;
 
 import javax.validation.Valid;
 import javax.validation.constraints.Positive;
@@ -61,11 +60,12 @@ public class BookingController {
     public ResponseEntity<Object> getBookingByBookerId(@RequestParam(defaultValue = STATE) String state,
                                                        @RequestHeader(HEADER_REQUEST) Long bookerId,
                                                        @RequestParam(defaultValue = FROM) @PositiveOrZero String from,
-                                                       @RequestParam(defaultValue = SIZE) @Positive String size) throws ValidationException {
+                                                       @RequestParam(defaultValue = SIZE) @Positive String size) {
         BookingStatus status = BookingStatus.from(state)
                 .orElseThrow(() -> new IllegalArgumentException("Unknown state: " + state));
-        log.info("gateway: BookingController: getBookingByBookerId():Get booking with state {}, bookerId={}, from={}, size={}", state, bookerId, from, size);
-        return bookingClient.getBookingByBookerId(status, bookerId, from, size);
+        log.info("gateway: BookingController: getBookingByBookerId():Get booking with state {}, bookerId={}, from={}, size={}", status, bookerId, from, size);
+        log.info(state);
+        return bookingClient.getBookingByBookerId(state, bookerId, from, size);
     }
 
     //Получение списка бронирований для всех вещей текущего пользователя. Эндпоинт GET /bookings/owner
@@ -73,11 +73,12 @@ public class BookingController {
     public ResponseEntity<Object> getBookingItemByOwnerId(@RequestParam(defaultValue = STATE) String state,
                                                           @RequestHeader(HEADER_REQUEST) Long ownerId,
                                                           @RequestParam(defaultValue = FROM) @PositiveOrZero String from,
-                                                          @RequestParam(defaultValue = SIZE) @Positive String size) throws ValidationException {
+                                                          @RequestParam(defaultValue = SIZE) @Positive String size) {
         BookingStatus status = BookingStatus.from(state)
                 .orElseThrow(() -> new IllegalArgumentException("Unknown state: " + state));
         log.info("gateway: BookingController: getBookingItemByOwnerId(): Get booking with state {}, ownerId={}, from={}, size={}", status.name(), ownerId, from, size);
-        return bookingClient.getBookingItemByOwnerId(status, ownerId, from, size);
+        log.info(state);
+        return bookingClient.getBookingItemByOwnerId(state, ownerId, from, size);
     }
 
 }

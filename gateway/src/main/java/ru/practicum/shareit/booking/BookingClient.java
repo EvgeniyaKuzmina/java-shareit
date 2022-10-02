@@ -1,5 +1,6 @@
 package ru.practicum.shareit.booking;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.client.RestTemplateBuilder;
@@ -14,6 +15,7 @@ import ru.practicum.shareit.client.BaseClient;
 import java.util.Map;
 
 @Service
+@Slf4j
 public class BookingClient extends BaseClient {
     private static final String API_PREFIX = "/bookings";
 
@@ -46,23 +48,24 @@ public class BookingClient extends BaseClient {
         return get("/{bookingId}", ownerId, parameters);
     }
 
-    public ResponseEntity<Object> getBookingByBookerId(BookingStatus state, Long bookerId, String from, String size) {
+    public ResponseEntity<Object> getBookingByBookerId(String state, Long bookerId, String from, String size) {
         Map<String, Object> parameters = Map.of(
-                "state", state.getStatus(),
+                "state", state,
                 "from", from,
                 "size", size
         );
-        return get("?state=" + state.getStatus() + "&from=" + from + "&size=" + size, bookerId, parameters);
+        log.info("?state=" + state + "&from=" + from + "&size=" + size, bookerId, parameters);
+        return get("?state=" + state + "&from=" + from + "&size=" + size, bookerId, parameters);
     }
 
-    public ResponseEntity<Object> getBookingItemByOwnerId(BookingStatus state, Long ownerId, String from, String size) {
+    public ResponseEntity<Object> getBookingItemByOwnerId(String state, Long ownerId, String from, String size) {
         Map<String, Object> parameters = Map.of(
-                "state", state.getStatus(),
+                "state", state,
                 "from", from,
                 "size", size
         );
-
-        return get("?state=" + state.getStatus() + "&from=" + from + "&size=" + size, ownerId, parameters);
+        log.info("/owner?state=" + state + "&from=" + from + "&size=" + size, ownerId, parameters);
+        return get("/owner?state=" + state + "&from=" + from + "&size=" + size, ownerId, parameters);
     }
 
 }

@@ -64,15 +64,15 @@ public class BookingController {
 
     //Получение списка всех бронирований текущего пользователя.
     @GetMapping
-    public Collection<BookingDto> getBookingByBookerId(@RequestParam(required = false, defaultValue = STATE) String stateParam,
+    public Collection<BookingDto> getBookingByBookerId(@RequestParam String state,
                                                        @RequestHeader(HEADER_REQUEST) Long bookerId,
-                                                       @RequestParam(required = false, defaultValue = FROM) @PositiveOrZero String from,
-                                                       @RequestParam(required = false, defaultValue = SIZE) @Positive String size)
+                                                       @RequestParam String from,
+                                                       @RequestParam @Positive String size)
 
             throws ObjectNotFountException, ValidationException {
         int page = Integer.parseInt(from) / Integer.parseInt(size);
         Pageable pageable = PageRequest.of(page, Integer.parseInt(size));
-        Collection<Booking> bookings = bookingService.getBookingByBookerId(stateParam, bookerId, pageable);
+        Collection<Booking> bookings = bookingService.getBookingByBookerId(state, bookerId, pageable);
         Collection<BookingDto> bookingsDto = new ArrayList<>();
         bookings.forEach(b -> bookingsDto.add(BookingMapper.toBookingDto(b)));
         return bookingsDto;
@@ -80,14 +80,14 @@ public class BookingController {
 
     //Получение списка бронирований для всех вещей текущего пользователя. Эндпоинт GET /bookings/owner
     @GetMapping(path = "/owner")
-    public Collection<BookingDto> getBookingItemByOwnerId(@RequestParam(required = false, defaultValue = STATE) String stateParam,
+    public Collection<BookingDto> getBookingItemByOwnerId(@RequestParam String state,
                                                           @RequestHeader(HEADER_REQUEST) Long ownerId,
-                                                          @RequestParam(required = false, defaultValue = FROM) @PositiveOrZero String from,
-                                                          @RequestParam(required = false, defaultValue = SIZE) @Positive String size)
+                                                          @RequestParam String from,
+                                                          @RequestParam String size)
             throws ObjectNotFountException, ValidationException {
         int page = Integer.parseInt(from) / Integer.parseInt(size);
         Pageable pageable = PageRequest.of(page, Integer.parseInt(size));
-        Collection<Booking> bookings = bookingService.getBookingItemByOwnerId(stateParam, ownerId, pageable);
+        Collection<Booking> bookings = bookingService.getBookingItemByOwnerId(state, ownerId, pageable);
         Collection<BookingDto> bookingsDto = new ArrayList<>();
         bookings.forEach(b -> bookingsDto.add(BookingMapper.toBookingDto(b)));
         return bookingsDto;

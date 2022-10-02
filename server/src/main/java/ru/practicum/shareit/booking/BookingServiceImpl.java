@@ -121,6 +121,8 @@ public class BookingServiceImpl implements BookingService {
     @Override
     public Collection<Booking> getAllBookingByBookerIdSortDesc(Long id, Pageable pageable) {
         return bookingRepository.findAllByBookerIdOrderByStartDesc(id, pageable);
+
+
     }
 
     @Override
