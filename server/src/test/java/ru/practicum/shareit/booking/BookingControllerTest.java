@@ -10,11 +10,9 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.model.Status;
-import ru.practicum.shareit.exception.ArgumentNotValidException;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.model.User;
 
@@ -39,19 +37,6 @@ class BookingControllerTest {
             .id(1L)
             .itemId(item.getId())
             .start(LocalDateTime.of(2023, 8, 19, 15, 0, 0))
-            .end(LocalDateTime.of(2023, 9, 19, 15, 0, 0))
-            .build();
-    private final BookingDto bookingDtoWithIncorrectStartDateAfterEnd = BookingDto.builder()
-            .id(1L)
-            .itemId(item.getId())
-            .start(LocalDateTime.of(2024, 8, 19, 15, 0, 0))
-            .end(LocalDateTime.of(2023, 9, 19, 15, 0, 0))
-            .build();
-
-    private final BookingDto bookingDtoWithIncorrectStartDateBeforeToday = BookingDto.builder()
-            .id(1L)
-            .itemId(item.getId())
-            .start(LocalDateTime.of(2020, 8, 19, 15, 0, 0))
             .end(LocalDateTime.of(2023, 9, 19, 15, 0, 0))
             .build();
     private final Booking booking = Booking.builder()
@@ -98,38 +83,6 @@ class BookingControllerTest {
                 .andExpect(jsonPath("$.booker.id", is(2L), Long.class))
                 .andExpect(jsonPath("$.item.id", is(bookingDto.getItemId()), Long.class));
     }
-
-    /*// проверка создания бронирования с неверной датой страт. Дата старта позднее даты окончания
-    @Test
-    void testCreateBookingWithExceptionForStartDateAfterEnd() throws Exception {
-        Mockito.when(bookingService.creatNewBooking(any(), anyLong()))
-                .thenThrow(ArgumentNotValidException.class);
-
-        mvc.perform(post("/bookings")
-                        .content(mapper.writeValueAsString(bookingDtoWithIncorrectStartDateAfterEnd))
-                        .characterEncoding(StandardCharsets.UTF_8)
-                        .header("X-Sharer-User-Id", 2L)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .accept(MediaType.APPLICATION_JSON))
-                .andDo(MockMvcResultHandlers.print())
-                .andExpect(status().is(400));
-    }*/
-
-  /*  // проверка создания бронирования с неверной датой страт. Дата старта ранее текущей даты
-    @Test
-    void testCreateBookingWithExceptionForStartDateBeforeToday() throws Exception {
-        Mockito.when(bookingService.creatNewBooking(any(), anyLong()))
-                .thenThrow(ArgumentNotValidException.class);
-
-        mvc.perform(post("/bookings")
-                        .content(mapper.writeValueAsString(bookingDtoWithIncorrectStartDateBeforeToday))
-                        .characterEncoding(StandardCharsets.UTF_8)
-                        .header("X-Sharer-User-Id", 2L)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .accept(MediaType.APPLICATION_JSON))
-                .andDo(MockMvcResultHandlers.print())
-                .andExpect(status().is(400));
-    }*/
 
     // проверка изменения бронирования владельцем вещи
     @Test
