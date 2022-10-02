@@ -21,6 +21,7 @@ import ru.practicum.shareit.request.RequestService;
 
 import java.time.LocalDateTime;
 import java.util.Collection;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -115,6 +116,9 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public Collection<Item> searchItemByNameOrDescription(String text, Pageable pageable) {
+        if (text.isEmpty()) {
+            return List.of();
+        }
         return itemRepository.findByNameContainingIgnoreCaseOrDescriptionContainingIgnoreCaseAndAvailableTrue(text, text, pageable);
     }
 
