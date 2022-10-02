@@ -15,7 +15,6 @@ import ru.practicum.shareit.exception.ValidationException;
 
 import javax.validation.Valid;
 import javax.validation.constraints.Positive;
-import javax.validation.constraints.PositiveOrZero;
 import java.util.ArrayList;
 import java.util.Collection;
 
@@ -29,9 +28,6 @@ import java.util.Collection;
 @Validated
 public class BookingController {
     private static final String HEADER_REQUEST = "X-Sharer-User-Id"; // заголовок запроса в котором передаётся id пользователя
-    private static final String FROM = "0";
-    private static final String SIZE = "10";
-    private static final String STATE = "ALL";
     private final BookingService bookingService;
 
     // Добавление нового запроса на бронирование.
