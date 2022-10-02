@@ -32,9 +32,11 @@ public class BookingController {
                                                 @RequestHeader(HEADER_REQUEST) Long userId)
             throws ArgumentNotValidException {
         if (bookingDto.getStart().isAfter(bookingDto.getEnd())) {
+            log.warn("gateway: BookingController: createBooking(): Дата начала бронирования не может быть позднее даты окончания бронирования");
             throw new ArgumentNotValidException("Дата начала бронирования не может быть позднее даты окончания бронирования");
         }
         if (bookingDto.getStart().isBefore(LocalDateTime.now())) {
+            log.warn("gateway: BookingController: createBooking(): Дата начала бронирования не может быть ранее текущей даты");
             throw new ArgumentNotValidException("Дата начала бронирования не может быть ранее текущей даты");
         }
         return bookingClient.creatBooking(bookingDto, userId);
@@ -61,10 +63,10 @@ public class BookingController {
                                                        @RequestHeader(HEADER_REQUEST) Long bookerId,
                                                        @RequestParam(defaultValue = FROM) @PositiveOrZero String from,
                                                        @RequestParam(defaultValue = SIZE) @Positive String size) {
-        BookingStatus status = BookingStatus.from(state)
-                .orElseThrow(() -> new IllegalArgumentException("Unknown state: " + state));
-        log.info("gateway: BookingController: getBookingByBookerId():Get booking with state {}, bookerId={}, from={}, size={}", status, bookerId, from, size);
-        log.info(state);
+        BookingStatus.from(state).orElseThrow(() -> {
+                    log.warn("gateway: BookingController: getBookingByBookerId(): Unknown state: " + state);
+                    return new IllegalArgumentException("Unknown state: " + state);
+                });
         return bookingClient.getBookingByBookerId(state, bookerId, from, size);
     }
 
@@ -74,10 +76,10 @@ public class BookingController {
                                                           @RequestHeader(HEADER_REQUEST) Long ownerId,
                                                           @RequestParam(defaultValue = FROM) @PositiveOrZero String from,
                                                           @RequestParam(defaultValue = SIZE) @Positive String size) {
-        BookingStatus status = BookingStatus.from(state)
-                .orElseThrow(() -> new IllegalArgumentException("Unknown state: " + state));
-        log.info("gateway: BookingController: getBookingItemByOwnerId(): Get booking with state {}, ownerId={}, from={}, size={}", status.name(), ownerId, from, size);
-        log.info(state);
+        BookingStatus.from(state).orElseThrow(() -> {
+                    log.warn("gateway: BookingController: getBookingItemByOwnerId(): Unknown state: " + state);
+                    return new IllegalArgumentException("Unknown state: " + state);
+                });
         return bookingClient.getBookingItemByOwnerId(state, ownerId, from, size);
     }
 

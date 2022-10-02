@@ -35,7 +35,7 @@ public class ItemController {
             throws ArgumentNotValidException {
         if (itemDto.getAvailable() == null || itemDto.getName() == null ||
                 itemDto.getName().isEmpty() || itemDto.getDescription() == null) {
-            log.warn("Не указано имя, описание товара или параметр доступности");
+            log.warn("gateway: ItemController.createItem: Не указано имя, описание товара или параметр доступности");
             throw new ArgumentNotValidException("Не указано имя, описание товара или параметр доступности");
         }
 
@@ -47,7 +47,6 @@ public class ItemController {
     public ResponseEntity<Object> updateItem(@Valid @RequestBody ItemDto itemDto,
                                              @PathVariable Long id,
                                              @RequestHeader(HEADER_REQUEST) Long userId) {
-
         return itemClient.updateItem(itemDto, id, userId);
     }
 
@@ -66,8 +65,8 @@ public class ItemController {
     // получение владельцем списка всех его вещей с комментариями. Эндпоинт GET items?from={from}&size={size}
     @GetMapping
     public ResponseEntity<Object> getAllItemByUserId(@RequestHeader(HEADER_REQUEST) Long ownerId,
-                                                     @RequestParam(required = false, defaultValue = FROM) @PositiveOrZero String from,
-                                                     @RequestParam(required = false, defaultValue = SIZE) @Positive String size) {
+                                                     @RequestParam(defaultValue = FROM) @PositiveOrZero String from,
+                                                     @RequestParam(defaultValue = SIZE) @Positive String size) {
         return itemClient.getAllItemByUserId(ownerId, from, size);
     }
 
@@ -75,8 +74,8 @@ public class ItemController {
     @GetMapping("/search")
     public ResponseEntity<Object> searchItemByNameOrDescription(@RequestParam String text,
                                                                 @RequestHeader(HEADER_REQUEST) Long userId,
-                                                                @RequestParam(required = false, defaultValue = FROM) @PositiveOrZero String from,
-                                                                @RequestParam(required = false, defaultValue = SIZE) @Positive String size) {
+                                                                @RequestParam(defaultValue = FROM) @PositiveOrZero String from,
+                                                                @RequestParam(defaultValue = SIZE) @Positive String size) {
         return itemClient.searchItemByNameOrDescription(text, userId, from, size);
     }
 
@@ -86,7 +85,7 @@ public class ItemController {
                                                 @RequestHeader(HEADER_REQUEST) Long userId,
                                                 @PathVariable Long itemId) throws ArgumentNotValidException {
         if (commentDto.getText().isEmpty()) {
-            log.error("gateway: ItemController.addNewComment: Комментарий пустой");
+            log.warn("gateway: ItemController.addNewComment: Комментарий пустой");
             throw new ArgumentNotValidException("Нельзя оставить пустой комментарий");
         }
         return itemClient.addNewComment(commentDto, userId, itemId);

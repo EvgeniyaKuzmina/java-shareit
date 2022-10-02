@@ -70,7 +70,7 @@ class RequestControllerTest {
         Mockito.when(requestService.getAllRequestsByUserId(anyLong(), eq(pageable)))
                 .thenReturn(List.of(itemRequest));
 
-        mvc.perform(get("/requests")
+        mvc.perform(get("/requests?from=1&size=10")
                         .characterEncoding(StandardCharsets.UTF_8)
                         .header("X-Sharer-User-Id", 1L)
                         .contentType(MediaType.APPLICATION_JSON)
@@ -91,7 +91,7 @@ class RequestControllerTest {
         Mockito.when(requestService.getAllRequestsCreatedAnotherUsers(anyLong(), eq(pageable)))
                 .thenReturn(List.of(itemRequest));
 
-        mvc.perform(get("/requests/all")
+        mvc.perform(get("/requests/all?from=1&size=10")
                         .characterEncoding(StandardCharsets.UTF_8)
                         .header("X-Sharer-User-Id", 2L)
                         .contentType(MediaType.APPLICATION_JSON)

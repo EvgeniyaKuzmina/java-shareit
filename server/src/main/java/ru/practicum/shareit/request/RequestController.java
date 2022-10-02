@@ -13,9 +13,6 @@ import ru.practicum.shareit.request.dto.ItemRequestDto;
 import ru.practicum.shareit.request.mapper.ItemRequestMapper;
 import ru.practicum.shareit.request.model.ItemRequest;
 
-import javax.validation.Valid;
-import javax.validation.constraints.Positive;
-import javax.validation.constraints.PositiveOrZero;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -31,8 +28,6 @@ import java.util.List;
 public class RequestController {
 
     private static final String HEADER_REQUEST = "X-Sharer-User-Id"; // заголовок запроса в котором передаётся id владельца вещи
-    private static final String FROM = "0";
-    private static final String SIZE = "10";
     private final RequestService requestService;
     private final ItemService itemService;
 
@@ -44,7 +39,7 @@ public class RequestController {
 
     // создание нового запроса вещи.
     @PostMapping
-    public ItemRequestDto createRequest(@Valid @RequestBody ItemRequestDto itemRequestDto,
+    public ItemRequestDto createRequest(@RequestBody ItemRequestDto itemRequestDto,
                                         @RequestHeader(HEADER_REQUEST) Long requesterId) throws ObjectNotFountException {
         itemRequestDto.setCreated(LocalDateTime.now());
         ItemRequest itemRequest = requestService.createRequest(itemRequestDto, requesterId);
@@ -56,8 +51,8 @@ public class RequestController {
     //Получение списка всех своих запросов вместе с данными об ответах на них. Эндпоинт GET /request/?from={from}&size={size}
     @GetMapping
     public Collection<ItemRequestDto> getAllRequestsByUserId(@RequestHeader(HEADER_REQUEST) Long requesterId,
-                                                             @RequestParam(required = false, defaultValue = FROM) @PositiveOrZero String from,
-                                                             @RequestParam(required = false, defaultValue = SIZE) @Positive String size)
+                                                             @RequestParam String from,
+                                                             @RequestParam String size)
             throws ObjectNotFountException {
 
         int page = Integer.parseInt(from) / Integer.parseInt(size);
@@ -70,8 +65,8 @@ public class RequestController {
     // Получение списка запросов, созданных другими пользователями. Эндпоинт GET /request/all?from={from}&size={size}
     @GetMapping("/all")
     public Collection<ItemRequestDto> getAllRequestsCreatedAnotherUsers(@RequestHeader(HEADER_REQUEST) Long requesterId,
-                                                                        @RequestParam(required = false, defaultValue = FROM) @PositiveOrZero String from,
-                                                                        @RequestParam(required = false, defaultValue = SIZE) @Positive String size)
+                                                                        @RequestParam String from,
+                                                                        @RequestParam String size)
             throws ObjectNotFountException {
 
         int page = Integer.parseInt(from) / Integer.parseInt(size);

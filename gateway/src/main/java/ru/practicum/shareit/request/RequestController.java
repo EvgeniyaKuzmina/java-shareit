@@ -36,7 +36,7 @@ public class RequestController {
     public ResponseEntity<Object> createRequest(@Valid @RequestBody RequestDto itemRequestDto,
                                                 @RequestHeader(HEADER_REQUEST) Long requesterId) throws ArgumentNotValidException {
         if (Optional.ofNullable(itemRequestDto.getDescription()).isEmpty() || itemRequestDto.getDescription().isBlank()) {
-            log.error("Пустое описание запроса");
+            log.warn("gateway: RequestController.createRequest: Пустое описание запроса");
             throw new ArgumentNotValidException("Описание запроса не может быть пустым");
         }
         return requestClient.createRequest(itemRequestDto, requesterId);
@@ -45,8 +45,8 @@ public class RequestController {
     //Получение списка всех своих запросов вместе с данными об ответах на них. Эндпоинт GET /request/?from={from}&size={size}
     @GetMapping
     public ResponseEntity<Object> getAllRequestsByUserId(@RequestHeader(HEADER_REQUEST) Long requesterId,
-                                                         @RequestParam(required = false, defaultValue = FROM) @PositiveOrZero String from,
-                                                         @RequestParam(required = false, defaultValue = SIZE) @Positive String size) {
+                                                         @RequestParam(defaultValue = FROM) @PositiveOrZero String from,
+                                                         @RequestParam(defaultValue = SIZE) @Positive String size) {
 
         return requestClient.getAllRequestsByUserId(requesterId, from, size);
     }
@@ -54,9 +54,8 @@ public class RequestController {
     // Получение списка запросов, созданных другими пользователями. Эндпоинт GET /request/all?from={from}&size={size}
     @GetMapping("/all")
     public ResponseEntity<Object> getAllRequestsCreatedAnotherUsers(@RequestHeader(HEADER_REQUEST) Long requesterId,
-                                                                    @RequestParam(required = false, defaultValue = FROM) @PositiveOrZero String from,
-                                                                    @RequestParam(required = false, defaultValue = SIZE) @Positive String size) {
-
+                                                                    @RequestParam(defaultValue = FROM) @PositiveOrZero String from,
+                                                                    @RequestParam(defaultValue = SIZE) @Positive String size) {
         return requestClient.getAllRequestsCreatedAnotherUsers(requesterId, from, size);
 
     }

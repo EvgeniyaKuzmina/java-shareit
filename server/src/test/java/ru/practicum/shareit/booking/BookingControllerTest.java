@@ -6,6 +6,8 @@ import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import ru.practicum.shareit.booking.dto.BookingDto;
@@ -17,6 +19,7 @@ import ru.practicum.shareit.user.model.User;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 
 import static org.hamcrest.Matchers.is;
 import static org.mockito.ArgumentMatchers.*;
@@ -123,13 +126,13 @@ class BookingControllerTest {
     }
 
     // проверка получения бронирований по id пользователя, который создавал бронирования
-  /*  @Test
+    @Test
     void testGetBookingByBookerId() throws Exception {
         Pageable pageable = PageRequest.of(0, 10);
         Mockito.when(bookingService.getBookingByBookerId(anyString(), anyLong(), eq(pageable)))
                 .thenReturn(List.of(booking));
 
-        mvc.perform(get("/bookings")
+        mvc.perform(get("/bookings?state=ALL&from=1&size=10")
                         .characterEncoding(StandardCharsets.UTF_8)
                         .header("X-Sharer-User-Id", 2L)
                         .queryParam("state", "ALL")
@@ -142,16 +145,16 @@ class BookingControllerTest {
                 .andExpect(jsonPath("$.[0].end", is(bookingDto.getEnd().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME))))
                 .andExpect(jsonPath("$.[0].booker.id", is(2L), Long.class))
                 .andExpect(jsonPath("$.[0].item.id", is(bookingDto.getItemId()), Long.class));
-    }*/
+    }
 
     // проверка получения бронирований по id владельца вещей, на которые делали бронирования
-   /* @Test
+    @Test
     void getBookingItemByOwnerId() throws Exception {
         Pageable pageable = PageRequest.of(0, 10);
         Mockito.when(bookingService.getBookingItemByOwnerId(anyString(), anyLong(), eq(pageable)))
                 .thenReturn(List.of(booking));
 
-        mvc.perform(get("/bookings/owner")
+        mvc.perform(get("/bookings/owner?state=ALL&from=1&size=10")
                         .characterEncoding(StandardCharsets.UTF_8)
                         .header("X-Sharer-User-Id", 1L)
                         .queryParam("state", "ALL")
@@ -164,5 +167,5 @@ class BookingControllerTest {
                 .andExpect(jsonPath("$.[0].end", is(bookingDto.getEnd().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME))))
                 .andExpect(jsonPath("$.[0].booker.id", is(2L), Long.class))
                 .andExpect(jsonPath("$.[0].item.id", is(bookingDto.getItemId()), Long.class));
-    }*/
+    }
 }

@@ -10,7 +10,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 import ru.practicum.shareit.booking.BookingServiceImpl;
 import ru.practicum.shareit.booking.dto.CommentDto;
 import ru.practicum.shareit.booking.model.Booking;
@@ -39,7 +38,6 @@ class ItemControllerTest {
     private final Comment comment = Comment.builder().text("new comment").author(user).creat(LocalDateTime.now()).item(item).build();
     private final Item updItem = Item.builder().id(1L).name("updItem").description("updItem").available(true).owner(user).build();
     private final ItemDto itemDto = ItemDto.builder().id(1L).name("Item1").description("Item").available(true).ownerId(user.getId()).build();
-    private final ItemDto wrongItemDto = ItemDto.builder().build();
     private final CommentDto commentDto = CommentDto.builder().text("new comment").creat(LocalDateTime.now()).authorName(user.getName()).build();
     private final Collection<Booking> bookings = new ArrayList<>();
 
@@ -69,21 +67,6 @@ class ItemControllerTest {
                 .andExpect(jsonPath("$.description", is(item.getDescription())))
                 .andExpect(jsonPath("$.available", is(item.getAvailable())))
                 .andExpect(jsonPath("$.ownerId", is(item.getOwner().getId()), Long.class));
-    }
-
-    @Test
-    void testCreateItemWithArgumentNotValidException() throws Exception {
-        Mockito.when(itemService.createItem(any(), anyLong()))
-                .thenReturn(item);
-
-        mvc.perform(post("/items")
-                        .content(mapper.writeValueAsString(wrongItemDto))
-                        .characterEncoding(StandardCharsets.UTF_8)
-                        .header("X-Sharer-User-Id", 1L)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .accept(MediaType.APPLICATION_JSON))
-                .andDo(MockMvcResultHandlers.print())
-                .andExpect(status().is(400));
     }
 
     @Test
@@ -136,7 +119,7 @@ class ItemControllerTest {
         Mockito.when(itemService.getAllItemByUserId(anyLong(), eq(pageable)))
                 .thenReturn(List.of(item));
 
-        mvc.perform(get("/items")
+        mvc.perform(get("/items?from=1&size=10")
                         .characterEncoding(StandardCharsets.UTF_8)
                         .header("X-Sharer-User-Id", 1L)
                         .contentType(MediaType.APPLICATION_JSON)
@@ -156,7 +139,7 @@ class ItemControllerTest {
         Mockito.when(itemService.searchItemByNameOrDescription(anyString(), eq(pageable)))
                 .thenReturn(List.of(item));
 
-        mvc.perform(get("/items/search?text=iTem")
+        mvc.perform(get("/items/search?text=iTem&from=1&size=10")
                         .characterEncoding(StandardCharsets.UTF_8)
                         .header("X-Sharer-User-Id", 2L)
                         .contentType(MediaType.APPLICATION_JSON)

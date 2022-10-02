@@ -13,8 +13,6 @@ import ru.practicum.shareit.exception.ArgumentNotValidException;
 import ru.practicum.shareit.exception.ObjectNotFountException;
 import ru.practicum.shareit.exception.ValidationException;
 
-import javax.validation.Valid;
-import javax.validation.constraints.Positive;
 import java.util.ArrayList;
 import java.util.Collection;
 
@@ -32,7 +30,7 @@ public class BookingController {
 
     // Добавление нового запроса на бронирование.
     @PostMapping
-    public BookingDto createBooking(@Valid @RequestBody BookingDto bookingDto, @RequestHeader(HEADER_REQUEST) Long userId)
+    public BookingDto createBooking(@RequestBody BookingDto bookingDto, @RequestHeader(HEADER_REQUEST) Long userId)
             throws ValidationException, ObjectNotFountException, ArgumentNotValidException {
 
         Booking booking = bookingService.creatNewBooking(bookingDto, userId);
@@ -63,7 +61,7 @@ public class BookingController {
     public Collection<BookingDto> getBookingByBookerId(@RequestParam String state,
                                                        @RequestHeader(HEADER_REQUEST) Long bookerId,
                                                        @RequestParam String from,
-                                                       @RequestParam @Positive String size)
+                                                       @RequestParam String size)
 
             throws ObjectNotFountException, ValidationException {
         int page = Integer.parseInt(from) / Integer.parseInt(size);

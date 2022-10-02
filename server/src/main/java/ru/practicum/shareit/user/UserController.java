@@ -10,7 +10,6 @@ import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.mapper.UserMapper;
 import ru.practicum.shareit.user.model.User;
 
-import javax.validation.Valid;
 import java.util.ArrayList;
 import java.util.Collection;
 
@@ -31,14 +30,14 @@ public class UserController {
 
     // создание пользователя
     @PostMapping
-    public UserDto createUser(@Valid @RequestBody UserDto userDto) throws ArgumentNotValidException, ConflictException {
+    public UserDto createUser(@RequestBody UserDto userDto) throws ArgumentNotValidException, ConflictException {
         userDto = UserMapper.toUserDto(userServiceImpl.createUser(userDto));
         return userDto;
     }
 
     // обновление пользователя
     @PatchMapping(value = {"/{id}"})
-    public UserDto updateUser(@Valid @RequestBody UserDto userDto, @PathVariable Long id) throws ObjectNotFountException, ConflictException {
+    public UserDto updateUser(@RequestBody UserDto userDto, @PathVariable Long id) throws ObjectNotFountException, ConflictException {
         User user = userServiceImpl.updateUser(userDto, id);
         return UserMapper.toUserDto(user);
     }

@@ -21,11 +21,11 @@ public class UserController {
 
     private final UserClient userClient;
 
-
     // создание пользователя
     @PostMapping
     public ResponseEntity<Object> createUser(@Valid @RequestBody UserDto userDto) throws ArgumentNotValidException {
         if (userDto.getEmail() == null) {
+            log.warn("gateway: UserController.createUser: Не указан email пользователя");
             throw new ArgumentNotValidException("Не указан email пользователя");
         }
 
