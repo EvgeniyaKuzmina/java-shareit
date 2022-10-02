@@ -3,9 +3,10 @@ package ru.practicum.shareit.booking;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.booking.dto.BookingDto;
-import ru.practicum.shareit.booking.dto.BookingState;
+import ru.practicum.shareit.booking.dto.BookingStatus;
 import ru.practicum.shareit.exception.ArgumentNotValidException;
 import ru.practicum.shareit.exception.ValidationException;
 
@@ -18,6 +19,7 @@ import java.time.LocalDateTime;
 @Slf4j
 @RestController
 @RequiredArgsConstructor
+@Validated
 public class BookingController {
     private static final String HEADER_REQUEST = "X-Sharer-User-Id"; // заголовок запроса в котором передаётся id пользователя
     private static final String FROM = "0";
@@ -56,34 +58,26 @@ public class BookingController {
 
     //Получение списка всех бронирований текущего пользователя.
     @GetMapping
-    public ResponseEntity<Object> getBookingByBookerId(@RequestParam(required = false) String stateParam,
+    public ResponseEntity<Object> getBookingByBookerId(@RequestParam(defaultValue = STATE) String state,
                                                        @RequestHeader(HEADER_REQUEST) Long bookerId,
                                                        @RequestParam(defaultValue = FROM) @PositiveOrZero String from,
                                                        @RequestParam(defaultValue = SIZE) @Positive String size) throws ValidationException {
-        log.info(stateParam);
-        if (stateParam == null) {
-            stateParam = STATE;
-        }
-        BookingState state = BookingState.getState(stateParam);
-        log.info(state.toString());
-        log.info("gateway: BookingController: getBookingByBookerId():Get booking with state {}, bookerId={}, from={}, size={}", stateParam, bookerId, from, size);
-        return bookingClient.getBookingByBookerId(state, bookerId, from, size);
+        BookingStatus status = BookingStatus.from(state)
+                .orElseThrow(() -> new IllegalArgumentException("Unknown state: " + state));
+        log.info("gateway: BookingController: getBookingByBookerId():Get booking with state {}, bookerId={}, from={}, size={}", state, bookerId, from, size);
+        return bookingClient.getBookingByBookerId(status, bookerId, from, size);
     }
 
     //Получение списка бронирований для всех вещей текущего пользователя. Эндпоинт GET /bookings/owner
     @GetMapping(path = "/owner")
-    public ResponseEntity<Object> getBookingItemByOwnerId(@RequestParam(required = false) String stateParam,
+    public ResponseEntity<Object> getBookingItemByOwnerId(@RequestParam(defaultValue = STATE) String state,
                                                           @RequestHeader(HEADER_REQUEST) Long ownerId,
                                                           @RequestParam(defaultValue = FROM) @PositiveOrZero String from,
                                                           @RequestParam(defaultValue = SIZE) @Positive String size) throws ValidationException {
-        log.info(stateParam);
-        if (stateParam == null) {
-            stateParam = STATE;
-        }
-        BookingState state = BookingState.getState(stateParam);
-        log.info(state.toString());
-        log.info("gateway: BookingController: getBookingItemByOwnerId(): Get booking with state {}, ownerId={}, from={}, size={}", state.name(), ownerId, from, size);
-        return bookingClient.getBookingItemByOwnerId(state, ownerId, from, size);
+        BookingStatus status = BookingStatus.from(state)
+                .orElseThrow(() -> new IllegalArgumentException("Unknown state: " + state));
+        log.info("gateway: BookingController: getBookingItemByOwnerId(): Get booking with state {}, ownerId={}, from={}, size={}", status.name(), ownerId, from, size);
+        return bookingClient.getBookingItemByOwnerId(status, ownerId, from, size);
     }
 
 }

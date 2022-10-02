@@ -18,7 +18,7 @@ public class BookingDto {
     private final Item item;
     private final Long itemId;
     private final Booker booker;
-    private final BookingState status;
+    private final BookingStatus status;
 
 
     @Data
