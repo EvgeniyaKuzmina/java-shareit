@@ -9,9 +9,6 @@ import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.mapper.BookingMapper;
 import ru.practicum.shareit.booking.model.Booking;
-import ru.practicum.shareit.exception.ArgumentNotValidException;
-import ru.practicum.shareit.exception.ObjectNotFountException;
-import ru.practicum.shareit.exception.ValidationException;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -30,8 +27,7 @@ public class BookingController {
 
     // Добавление нового запроса на бронирование.
     @PostMapping
-    public BookingDto createBooking(@RequestBody BookingDto bookingDto, @RequestHeader(HEADER_REQUEST) Long userId)
-            throws ValidationException, ObjectNotFountException, ArgumentNotValidException {
+    public BookingDto createBooking(@RequestBody BookingDto bookingDto, @RequestHeader(HEADER_REQUEST) Long userId) {
 
         Booking booking = bookingService.creatNewBooking(bookingDto, userId);
         return BookingMapper.toBookingDto(booking);
@@ -41,8 +37,7 @@ public class BookingController {
     @PatchMapping(value = {"/{bookingId}"})
     public BookingDto processingBooking(@PathVariable Long bookingId,
                                         @RequestParam Boolean approved,
-                                        @RequestHeader(HEADER_REQUEST) Long ownerId)
-            throws ObjectNotFountException, ValidationException, ArgumentNotValidException {
+                                        @RequestHeader(HEADER_REQUEST) Long ownerId) {
         Booking booking = bookingService.processingBookingRequest(bookingId, ownerId, approved);
         return BookingMapper.toBookingDto(booking);
     }
@@ -50,8 +45,7 @@ public class BookingController {
     //Получение данных о конкретном бронировании (включая его статус).
     @GetMapping(value = {"/{bookingId}"})
     public BookingDto getBookingById(@PathVariable Long bookingId,
-                                     @RequestHeader(HEADER_REQUEST) Long ownerId)
-            throws ObjectNotFountException {
+                                     @RequestHeader(HEADER_REQUEST) Long ownerId) {
         Booking booking = bookingService.getBookingById(bookingId, ownerId);
         return BookingMapper.toBookingDto(booking);
     }
@@ -61,9 +55,7 @@ public class BookingController {
     public Collection<BookingDto> getBookingByBookerId(@RequestParam String state,
                                                        @RequestHeader(HEADER_REQUEST) Long bookerId,
                                                        @RequestParam String from,
-                                                       @RequestParam String size)
-
-            throws ObjectNotFountException, ValidationException {
+                                                       @RequestParam String size) {
         int page = Integer.parseInt(from) / Integer.parseInt(size);
         Pageable pageable = PageRequest.of(page, Integer.parseInt(size));
         Collection<Booking> bookings = bookingService.getBookingByBookerId(state, bookerId, pageable);
@@ -77,8 +69,7 @@ public class BookingController {
     public Collection<BookingDto> getBookingItemByOwnerId(@RequestParam String state,
                                                           @RequestHeader(HEADER_REQUEST) Long ownerId,
                                                           @RequestParam String from,
-                                                          @RequestParam String size)
-            throws ObjectNotFountException, ValidationException {
+                                                          @RequestParam String size) {
         int page = Integer.parseInt(from) / Integer.parseInt(size);
         Pageable pageable = PageRequest.of(page, Integer.parseInt(size));
         Collection<Booking> bookings = bookingService.getBookingItemByOwnerId(state, ownerId, pageable);

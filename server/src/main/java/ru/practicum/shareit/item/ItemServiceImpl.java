@@ -14,10 +14,10 @@ import ru.practicum.shareit.exception.ObjectNotFountException;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.mapper.ItemMapper;
 import ru.practicum.shareit.item.model.Item;
+import ru.practicum.shareit.request.RequestService;
 import ru.practicum.shareit.request.model.ItemRequest;
 import ru.practicum.shareit.user.UserService;
 import ru.practicum.shareit.user.model.User;
-import ru.practicum.shareit.request.RequestService;
 
 import java.time.LocalDateTime;
 import java.util.Collection;
@@ -36,7 +36,7 @@ public class ItemServiceImpl implements ItemService {
     private final RequestService requestService;
 
     @Override
-    public Item createItem(ItemDto itemDto, Long userId) throws ObjectNotFountException, ArgumentNotValidException {
+    public Item createItem(ItemDto itemDto, Long userId) {
         User user = userService.getUserById(userId); // проверяем что пользователь с таким id существует
         Item item = ItemMapper.toItem(itemDto, user);
         item.setOwner(user);
@@ -56,7 +56,7 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public Item updateItem(ItemDto updItem, Long id, Long userId) throws ObjectNotFountException, ArgumentNotValidException {
+    public Item updateItem(ItemDto updItem, Long id, Long userId) {
         userService.getUserById(userId); // проверяем что пользователь с таким id существует
         Item item = getItemById(id); // получаем вещь по Id
         if (!Objects.equals(
@@ -79,7 +79,7 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public void removeItem(Long id, Long userId) throws ArgumentNotValidException, ObjectNotFountException {
+    public void removeItem(Long id, Long userId) {
         Item item = getItemById(id); // получаем вещь по Id
         userService.getUserById(userId); // проверяем что пользователь с таким id существует
         if (!Objects.equals(item.getOwner().getId(), userId)) { // проверяем что передан id владельца в заголовке
@@ -92,7 +92,7 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public Item getItemById(Long id) throws ObjectNotFountException {
+    public Item getItemById(Long id) {
         Optional<Item> itemOpt = itemRepository.findById(id);
         itemOpt.orElseThrow(() -> {
             log.error("ItemServiceImpl.getItemById: Вещи с таким id нет ");
@@ -103,13 +103,13 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public Collection<Item> getAllItemByUserId(Long id, Pageable pageable) throws ObjectNotFountException {
+    public Collection<Item> getAllItemByUserId(Long id, Pageable pageable) {
         userService.getUserById(id); // проверяем что пользователь с таким id существует
         return itemRepository.findAllByOwnerIdOrderByIdAsc(id, pageable);
     }
 
     @Override
-    public Collection<Item> getAllItemByUserIdWithoutPagination(Long id) throws ObjectNotFountException {
+    public Collection<Item> getAllItemByUserIdWithoutPagination(Long id) {
         userService.getUserById(id); // проверяем что пользователь с таким id существует
         return itemRepository.findAllByOwnerIdOrderByIdAsc(id);
     }
@@ -123,8 +123,7 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public Comment addNewComment(CommentDto commentDto, Long userId, Long itemId, Collection<Booking> bookings)
-            throws ObjectNotFountException, ArgumentNotValidException {
+    public Comment addNewComment(CommentDto commentDto, Long userId, Long itemId, Collection<Booking> bookings) {
         User user = userService.getUserById(userId); // проверяем что пользователь с таким id существует
         Item item = getItemById(itemId); // проверяем что вещь с таким id существует
         Comment comment = CommentMapper.toComment(commentDto, user, item);

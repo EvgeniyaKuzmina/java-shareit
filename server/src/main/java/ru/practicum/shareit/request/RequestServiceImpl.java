@@ -7,8 +7,8 @@ import org.springframework.stereotype.Service;
 import ru.practicum.shareit.exception.ObjectNotFountException;
 import ru.practicum.shareit.request.dto.ItemRequestDto;
 import ru.practicum.shareit.request.mapper.ItemRequestMapper;
-import ru.practicum.shareit.user.UserService;
 import ru.practicum.shareit.request.model.ItemRequest;
+import ru.practicum.shareit.user.UserService;
 import ru.practicum.shareit.user.model.User;
 
 import java.util.List;
@@ -22,26 +22,26 @@ public class RequestServiceImpl implements RequestService {
     private final UserService userService;
 
     @Override
-    public ItemRequest createRequest(ItemRequestDto itemRequestDto, Long id) throws ObjectNotFountException {
+    public ItemRequest createRequest(ItemRequestDto itemRequestDto, Long id) {
         User user = userService.getUserById(id);
         ItemRequest itemRequest = ItemRequestMapper.toItemRequest(itemRequestDto, user);
         return requestRepository.save(itemRequest);
     }
 
     @Override
-    public List<ItemRequest> getAllRequestsByUserId(Long id, Pageable pageable) throws ObjectNotFountException {
+    public List<ItemRequest> getAllRequestsByUserId(Long id, Pageable pageable) {
         userService.getUserById(id); // проверяем что пользователь с указанным id есть
         return requestRepository.findAllByRequesterIdOrderByCreatedDesc(id, pageable);
     }
 
     @Override
-    public List<ItemRequest> getAllRequestsCreatedAnotherUsers(Long id, Pageable pageable) throws ObjectNotFountException {
+    public List<ItemRequest> getAllRequestsCreatedAnotherUsers(Long id, Pageable pageable) {
         userService.getUserById(id); // проверяем что пользователь с указанным id есть
         return requestRepository.findAllByRequesterIdNotOrderByCreatedDesc(id, pageable);
     }
 
     @Override
-    public ItemRequest getRequestById(Long id, Long requesterId) throws ObjectNotFountException {
+    public ItemRequest getRequestById(Long id, Long requesterId) {
         userService.getUserById(requesterId); // проверяем что пользователь с указанным id есть
         Optional<ItemRequest> itemRequest = requestRepository.findById(id);
         itemRequest.orElseThrow(() -> {

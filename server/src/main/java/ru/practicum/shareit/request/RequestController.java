@@ -5,7 +5,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import ru.practicum.shareit.exception.ObjectNotFountException;
 import ru.practicum.shareit.item.ItemService;
 import ru.practicum.shareit.item.ItemServiceImpl;
 import ru.practicum.shareit.item.model.Item;
@@ -40,7 +39,7 @@ public class RequestController {
     // создание нового запроса вещи.
     @PostMapping
     public ItemRequestDto createRequest(@RequestBody ItemRequestDto itemRequestDto,
-                                        @RequestHeader(HEADER_REQUEST) Long requesterId) throws ObjectNotFountException {
+                                        @RequestHeader(HEADER_REQUEST) Long requesterId) {
         itemRequestDto.setCreated(LocalDateTime.now());
         ItemRequest itemRequest = requestService.createRequest(itemRequestDto, requesterId);
 
@@ -52,8 +51,7 @@ public class RequestController {
     @GetMapping
     public Collection<ItemRequestDto> getAllRequestsByUserId(@RequestHeader(HEADER_REQUEST) Long requesterId,
                                                              @RequestParam String from,
-                                                             @RequestParam String size)
-            throws ObjectNotFountException {
+                                                             @RequestParam String size) {
 
         int page = Integer.parseInt(from) / Integer.parseInt(size);
         Pageable pageable = PageRequest.of(page, Integer.parseInt(size));
@@ -66,8 +64,7 @@ public class RequestController {
     @GetMapping("/all")
     public Collection<ItemRequestDto> getAllRequestsCreatedAnotherUsers(@RequestHeader(HEADER_REQUEST) Long requesterId,
                                                                         @RequestParam String from,
-                                                                        @RequestParam String size)
-            throws ObjectNotFountException {
+                                                                        @RequestParam String size) {
 
         int page = Integer.parseInt(from) / Integer.parseInt(size);
         Pageable pageable = PageRequest.of(page, Integer.parseInt(size));
@@ -79,8 +76,7 @@ public class RequestController {
 
     // Получение данных об одном конкретном запросе вместе с данными об ответах на него. Эндпоинт GET /request/{requestId}
     @GetMapping("/{id}")
-    public ItemRequestDto getRequestById(@RequestHeader(HEADER_REQUEST) Long requesterId, @PathVariable Long id)
-            throws ObjectNotFountException {
+    public ItemRequestDto getRequestById(@RequestHeader(HEADER_REQUEST) Long requesterId, @PathVariable Long id) {
 
         ItemRequest itemRequest = requestService.getRequestById(id, requesterId);
         Collection<Item> items = itemService.findAllByRequestId(itemRequest.getId());

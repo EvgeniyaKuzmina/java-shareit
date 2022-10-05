@@ -21,7 +21,7 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
 
     @Override
-    public User createUser(UserDto userDto) throws ConflictException {
+    public User createUser(UserDto userDto) {
         User user = UserMapper.toUser(userDto);
         try {
             log.info("Добавлен пользователь {}.", user);
@@ -34,7 +34,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User updateUser(UserDto userDto, Long userId) throws ObjectNotFountException, ConflictException {
+    public User updateUser(UserDto userDto, Long userId) {
         User updUser = getUserById(userId); // проверка, что пользователь с указанным id есть
         // обновляем данные
         Optional.ofNullable(userDto.getName()).ifPresent(updUser::setName);
@@ -52,7 +52,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void removeUser(Long id) throws ObjectNotFountException {
+    public void removeUser(Long id) {
         getUserById(id); // проверка, что пользователь с указанным id есть
         log.warn("Пользователя с указанным id {} удалён", id);
         userRepository.deleteById(id);
@@ -64,7 +64,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User getUserById(Long id) throws ObjectNotFountException {
+    public User getUserById(Long id) {
         Optional<User> user = userRepository.findById(id);
         user.orElseThrow(() -> {
             log.warn("Пользователя с указанным id {} нет", id);

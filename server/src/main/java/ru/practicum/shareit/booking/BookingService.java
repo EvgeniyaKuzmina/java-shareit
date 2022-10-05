@@ -4,9 +4,6 @@ import org.springframework.data.domain.Pageable;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.model.Comment;
-import ru.practicum.shareit.exception.ArgumentNotValidException;
-import ru.practicum.shareit.exception.ObjectNotFountException;
-import ru.practicum.shareit.exception.ValidationException;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.model.Item;
 
@@ -16,25 +13,25 @@ public interface BookingService {
 
 
     // Добавление нового запроса на бронирование.
-    Booking creatNewBooking(BookingDto bookingDto, Long userId) throws ObjectNotFountException, ValidationException, ArgumentNotValidException;
+    Booking creatNewBooking(BookingDto bookingDto, Long userId);
 
     //Подтверждение или отклонение запроса на бронирование.
-    Booking processingBookingRequest(Long bookingId, Long ownerId, Boolean result) throws ValidationException, ObjectNotFountException, ArgumentNotValidException;
+    Booking processingBookingRequest(Long bookingId, Long ownerId, Boolean result);
 
     //Получение данных о конкретном бронировании (включая его статус).
-    Booking getBookingById(Long bookingId, Long userId) throws ObjectNotFountException;
+    Booking getBookingById(Long bookingId, Long userId);
 
     //Получение списка всех бронирований текущего пользователя.
-    Collection<Booking> getBookingByBookerId(String state, Long bookerId, Pageable pageable) throws ValidationException, ObjectNotFountException;
+    Collection<Booking> getBookingByBookerId(String state, Long bookerId, Pageable pageable);
 
     //Получение списка бронирований для всех вещей текущего пользователя.
-    Collection<Booking> getBookingItemByOwnerId(String state, Long ownerId, Pageable pageable) throws ObjectNotFountException, ValidationException;
+    Collection<Booking> getBookingItemByOwnerId(String state, Long ownerId, Pageable pageable);
 
     // получение бронирования по Id
-    Booking checkAndGetBookingById(Long id) throws ValidationException, ObjectNotFountException;
+    Booking checkAndGetBookingById(Long id);
 
     // получение списка всех бронирований конкретного пользователя
-    Collection<Booking> getAllBookingByBookerIdSortDesc(Long id, Pageable pageable) throws ObjectNotFountException, ValidationException;
+    Collection<Booking> getAllBookingByBookerIdSortDesc(Long id, Pageable pageable);
 
     // получение всех бронирований по id создателя бронирования отсортированные в порядке возрастная id
     Collection<Booking> getAllBookingByBookerIdSortAsc(Long id);

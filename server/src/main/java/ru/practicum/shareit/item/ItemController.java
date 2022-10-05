@@ -11,15 +11,10 @@ import ru.practicum.shareit.booking.dto.CommentDto;
 import ru.practicum.shareit.booking.mapper.CommentMapper;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.model.Comment;
-import ru.practicum.shareit.exception.ArgumentNotValidException;
-import ru.practicum.shareit.exception.ObjectNotFountException;
-import ru.practicum.shareit.exception.ValidationException;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.mapper.ItemMapper;
 import ru.practicum.shareit.item.model.Item;
 
-import javax.validation.Valid;
-import javax.validation.constraints.Positive;
 import java.util.ArrayList;
 import java.util.Collection;
 
@@ -41,8 +36,7 @@ public class ItemController {
 
     // создание вещи
     @PostMapping
-    public ItemDto createItem(@Valid @RequestBody ItemDto itemDto, @RequestHeader(HEADER_REQUEST) Long userId)
-            throws ArgumentNotValidException, ObjectNotFountException {
+    public ItemDto createItem(@RequestBody ItemDto itemDto, @RequestHeader(HEADER_REQUEST) Long userId) {
         Item item = itemService.createItem(itemDto, userId);
         ItemDto.LastOrNextBooking lastBooking = bookingService.getLastOrNextBookingForItem(item, userId, LAST);
         ItemDto.LastOrNextBooking nextBooking = bookingService.getLastOrNextBookingForItem(item, userId, NEXT);
@@ -54,7 +48,7 @@ public class ItemController {
     @PatchMapping(value = {"/{id}"})
     public ItemDto updateItem(@RequestBody ItemDto itemDto,
                               @PathVariable Long id,
-                              @RequestHeader(HEADER_REQUEST) Long userId) throws ObjectNotFountException, ValidationException, ArgumentNotValidException {
+                              @RequestHeader(HEADER_REQUEST) Long userId) {
         Item item = itemService.updateItem(itemDto, id, userId);
         ItemDto.LastOrNextBooking lastBooking = bookingService.getLastOrNextBookingForItem(item, userId, LAST);
         ItemDto.LastOrNextBooking nextBooking = bookingService.getLastOrNextBookingForItem(item, userId, NEXT);
@@ -64,14 +58,13 @@ public class ItemController {
 
     //удаление вещи
     @DeleteMapping(value = {"/{id}"})
-    public void removeItem(@PathVariable Long id, @RequestHeader(HEADER_REQUEST) Long userId)
-            throws ValidationException, ArgumentNotValidException, ObjectNotFountException {
+    public void removeItem(@PathVariable Long id, @RequestHeader(HEADER_REQUEST) Long userId) {
         itemService.removeItem(id, userId);
     }
 
     // получение вещи по id с комментариями
     @GetMapping(value = {"/{id}"})
-    public ItemDto getItemById(@PathVariable Long id, @RequestHeader(HEADER_REQUEST) Long userId) throws ObjectNotFountException {
+    public ItemDto getItemById(@PathVariable Long id, @RequestHeader(HEADER_REQUEST) Long userId) {
         Item item = itemService.getItemById(id);
         ItemDto.LastOrNextBooking lastBooking = bookingService.getLastOrNextBookingForItem(item, userId, LAST);
         ItemDto.LastOrNextBooking nextBooking = bookingService.getLastOrNextBookingForItem(item, userId, NEXT);
@@ -83,8 +76,7 @@ public class ItemController {
     @GetMapping
     public Collection<ItemDto> getAllItemByUserId(@RequestHeader(HEADER_REQUEST) Long ownerId,
                                                   @RequestParam String from,
-                                                  @RequestParam @Positive String size)
-            throws ObjectNotFountException {
+                                                  @RequestParam String size) {
 
         int page = Integer.parseInt(from) / Integer.parseInt(size);
         Pageable pageable = PageRequest.of(page, Integer.parseInt(size));
@@ -112,7 +104,7 @@ public class ItemController {
     @PostMapping(value = {"/{itemId}/comment"})
     public CommentDto addNewComment(@RequestBody CommentDto commentDto,
                                     @RequestHeader(HEADER_REQUEST) Long userId,
-                                    @PathVariable Long itemId) throws ArgumentNotValidException, ValidationException, ObjectNotFountException {
+                                    @PathVariable Long itemId) {
         // проверяем что пользователь действительно бронировал указанную вещь
         Collection<Booking> bookings = bookingService.getAllBookingByBookerIdSortAsc(userId);
         Comment comment = itemService.addNewComment(commentDto, userId, itemId, bookings);

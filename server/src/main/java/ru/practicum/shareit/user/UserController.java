@@ -3,9 +3,6 @@ package ru.practicum.shareit.user;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-import ru.practicum.shareit.exception.ArgumentNotValidException;
-import ru.practicum.shareit.exception.ConflictException;
-import ru.practicum.shareit.exception.ObjectNotFountException;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.mapper.UserMapper;
 import ru.practicum.shareit.user.model.User;
@@ -30,27 +27,27 @@ public class UserController {
 
     // создание пользователя
     @PostMapping
-    public UserDto createUser(@RequestBody UserDto userDto) throws ArgumentNotValidException, ConflictException {
+    public UserDto createUser(@RequestBody UserDto userDto) {
         userDto = UserMapper.toUserDto(userServiceImpl.createUser(userDto));
         return userDto;
     }
 
     // обновление пользователя
     @PatchMapping(value = {"/{id}"})
-    public UserDto updateUser(@RequestBody UserDto userDto, @PathVariable Long id) throws ObjectNotFountException, ConflictException {
+    public UserDto updateUser(@RequestBody UserDto userDto, @PathVariable Long id) {
         User user = userServiceImpl.updateUser(userDto, id);
         return UserMapper.toUserDto(user);
     }
 
     // удаление пользователя по id
     @DeleteMapping(value = {"/{id}"})
-    public void removeUser(@PathVariable Long id) throws ObjectNotFountException {
+    public void removeUser(@PathVariable Long id) {
         userServiceImpl.removeUser(id);
     }
 
     // получение пользователя по Id
     @GetMapping(value = {"/{id}"})
-    public UserDto getUserById(@PathVariable Long id) throws ObjectNotFountException {
+    public UserDto getUserById(@PathVariable Long id) {
         User user = userServiceImpl.getUserById(id);
         return UserMapper.toUserDto(user);
     }

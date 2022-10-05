@@ -6,6 +6,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.mapper.BookingMapper;
+import ru.practicum.shareit.booking.model.Booking;
+import ru.practicum.shareit.booking.model.Comment;
 import ru.practicum.shareit.booking.model.Status;
 import ru.practicum.shareit.exception.ArgumentNotValidException;
 import ru.practicum.shareit.exception.ObjectNotFountException;
@@ -14,8 +16,6 @@ import ru.practicum.shareit.item.ItemService;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.UserService;
-import ru.practicum.shareit.booking.model.Booking;
-import ru.practicum.shareit.booking.model.Comment;
 import ru.practicum.shareit.user.model.User;
 
 import java.time.LocalDateTime;
@@ -38,7 +38,7 @@ public class BookingServiceImpl implements BookingService {
     private final ItemService itemService;
 
     @Override
-    public Booking creatNewBooking(BookingDto bookingDto, Long userId) throws ObjectNotFountException, ArgumentNotValidException {
+    public Booking creatNewBooking(BookingDto bookingDto, Long userId) {
         User user = userService.getUserById(userId); // проверяем что пользователь с таким id существует
         Item item = itemService.getItemById(bookingDto.getItemId()); // проверяем что вещь с таким id существует
         if (user.getId().equals(item.getOwner().getId())) { // проверяем что владелец вещи не бронирует свою собственную вещь
@@ -58,7 +58,7 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public Booking processingBookingRequest(Long bookingId, Long ownerId, Boolean result) throws ObjectNotFountException, ArgumentNotValidException {
+    public Booking processingBookingRequest(Long bookingId, Long ownerId, Boolean result) {
         userService.getUserById(ownerId); // проверяем что пользователь с таким id существует
         Booking booking = checkAndGetBookingById(bookingId); //  проверка и получение бронирование по Id
         if (!booking.getItem().getOwner().getId().equals(ownerId)) { // проверяем что передан id владельца вещи
@@ -79,7 +79,7 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public Booking getBookingById(Long bookingId, Long userId) throws ObjectNotFountException {
+    public Booking getBookingById(Long bookingId, Long userId) {
         Booking booking = checkAndGetBookingById(bookingId); // проверка и получение бронирования по Id
         Long bookerId = booking.getBooker().getId();
         Long itemOwnerId = booking.getItem().getOwner().getId();
@@ -92,14 +92,14 @@ public class BookingServiceImpl implements BookingService {
 
 
     @Override
-    public Collection<Booking> getBookingByBookerId(String state, Long bookerId, Pageable pageable) throws ValidationException, ObjectNotFountException {
+    public Collection<Booking> getBookingByBookerId(String state, Long bookerId, Pageable pageable) {
         userService.getUserById(bookerId); // проверяем что пользователь с таким id существует
         Collection<Booking> bookings = getAllBookingByBookerIdSortDesc(bookerId, pageable);
         return checkStateAndGetFilteredBookings(bookings, state);
     }
 
     @Override
-    public Collection<Booking> getBookingItemByOwnerId(String state, Long ownerId, Pageable pageable) throws ObjectNotFountException, ValidationException {
+    public Collection<Booking> getBookingItemByOwnerId(String state, Long ownerId, Pageable pageable) {
         userService.getUserById(ownerId); // проверяем что пользователь с таким id существует
         Collection<Item> items = itemService.getAllItemByUserIdWithoutPagination(ownerId); // получаем все вещи по указанному пользователю
         Collection<Booking> bookings = new ArrayList<>();
@@ -109,11 +109,11 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public Booking checkAndGetBookingById(Long id) throws ObjectNotFountException {
+    public Booking checkAndGetBookingById(Long id) {
         Optional<Booking> bookingOpt = bookingRepository.findById(id);
         bookingOpt.orElseThrow(() -> {
             log.error("BookingServiceImpl.checkAndGetBookingById: Бронирования с таким id {} нет ", id);
-            return new ObjectNotFountException("Бронирования с таким id " + id + " нет");
+            throw new ObjectNotFountException("Бронирования с таким id " + id + " нет");
         });
         return bookingOpt.get();
     }
@@ -160,8 +160,7 @@ public class BookingServiceImpl implements BookingService {
     }
 
     // проверка парамера запроса и возвращение отсортированных бронирований
-    private Collection<Booking> checkStateAndGetFilteredBookings(Collection<Booking> bookings, String state)
-            throws ValidationException {
+    private Collection<Booking> checkStateAndGetFilteredBookings(Collection<Booking> bookings, String state) {
         Status status = Status.getStatus(state);
         switch (status) {
             case ALL:

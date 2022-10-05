@@ -34,7 +34,7 @@ public class RequestController {
     // создание нового запроса вещи.
     @PostMapping
     public ResponseEntity<Object> createRequest(@Valid @RequestBody RequestDto itemRequestDto,
-                                                @RequestHeader(HEADER_REQUEST) Long requesterId) throws ArgumentNotValidException {
+                                                @RequestHeader(HEADER_REQUEST) Long requesterId) {
         if (Optional.ofNullable(itemRequestDto.getDescription()).isEmpty() || itemRequestDto.getDescription().isBlank()) {
             log.warn("gateway: RequestController.createRequest: Пустое описание запроса");
             throw new ArgumentNotValidException("Описание запроса не может быть пустым");

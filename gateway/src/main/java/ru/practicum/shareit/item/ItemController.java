@@ -31,8 +31,8 @@ public class ItemController {
 
     // создание вещи
     @PostMapping
-    public ResponseEntity<Object> createItem(@Valid @RequestBody ItemDto itemDto, @RequestHeader(HEADER_REQUEST) Long userId)
-            throws ArgumentNotValidException {
+    public ResponseEntity<Object> createItem(@Valid @RequestBody ItemDto itemDto,
+                                             @RequestHeader(HEADER_REQUEST) Long userId) {
         if (itemDto.getAvailable() == null || itemDto.getName() == null ||
                 itemDto.getName().isEmpty() || itemDto.getDescription() == null) {
             log.warn("gateway: ItemController.createItem: Не указано имя, описание товара или параметр доступности");
@@ -52,13 +52,15 @@ public class ItemController {
 
     //удаление вещи
     @DeleteMapping(value = {"/{id}"})
-    public ResponseEntity<Object> removeItem(@PathVariable Long id, @RequestHeader(HEADER_REQUEST) Long userId) {
+    public ResponseEntity<Object> removeItem(@PathVariable Long id,
+                                             @RequestHeader(HEADER_REQUEST) Long userId) {
         return itemClient.removeItem(id, userId);
     }
 
     // получение вещи по id с комментариями
     @GetMapping(value = {"/{id}"})
-    public ResponseEntity<Object> getItemById(@PathVariable Long id, @RequestHeader(HEADER_REQUEST) Long userId) {
+    public ResponseEntity<Object> getItemById(@PathVariable Long id,
+                                              @RequestHeader(HEADER_REQUEST) Long userId) {
         return itemClient.getItemById(id, userId);
     }
 
@@ -83,7 +85,7 @@ public class ItemController {
     @PostMapping(value = {"/{itemId}/comment"})
     public ResponseEntity<Object> addNewComment(@Valid @RequestBody CommentDto commentDto,
                                                 @RequestHeader(HEADER_REQUEST) Long userId,
-                                                @PathVariable Long itemId) throws ArgumentNotValidException {
+                                                @PathVariable Long itemId) {
         if (commentDto.getText().isEmpty()) {
             log.warn("gateway: ItemController.addNewComment: Комментарий пустой");
             throw new ArgumentNotValidException("Нельзя оставить пустой комментарий");

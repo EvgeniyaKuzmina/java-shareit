@@ -29,8 +29,7 @@ public class BookingController {
     // Добавление нового запроса на бронирование.
     @PostMapping
     public ResponseEntity<Object> createBooking(@Valid @RequestBody BookingDto bookingDto,
-                                                @RequestHeader(HEADER_REQUEST) Long userId)
-            throws ArgumentNotValidException {
+                                                @RequestHeader(HEADER_REQUEST) Long userId) {
         if (bookingDto.getStart().isAfter(bookingDto.getEnd())) {
             log.warn("gateway: BookingController: createBooking(): Дата начала бронирования не может быть позднее даты окончания бронирования");
             throw new ArgumentNotValidException("Дата начала бронирования не может быть позднее даты окончания бронирования");
@@ -64,9 +63,9 @@ public class BookingController {
                                                        @RequestParam(defaultValue = FROM) @PositiveOrZero String from,
                                                        @RequestParam(defaultValue = SIZE) @Positive String size) {
         BookingStatus.from(state).orElseThrow(() -> {
-                    log.warn("gateway: BookingController: getBookingByBookerId(): Unknown state: " + state);
-                    return new IllegalArgumentException("Unknown state: " + state);
-                });
+            log.warn("gateway: BookingController: getBookingByBookerId(): Unknown state: " + state);
+            throw new IllegalArgumentException("Unknown state: " + state);
+        });
         return bookingClient.getBookingByBookerId(state, bookerId, from, size);
     }
 
@@ -77,9 +76,9 @@ public class BookingController {
                                                           @RequestParam(defaultValue = FROM) @PositiveOrZero String from,
                                                           @RequestParam(defaultValue = SIZE) @Positive String size) {
         BookingStatus.from(state).orElseThrow(() -> {
-                    log.warn("gateway: BookingController: getBookingItemByOwnerId(): Unknown state: " + state);
-                    return new IllegalArgumentException("Unknown state: " + state);
-                });
+            log.warn("gateway: BookingController: getBookingItemByOwnerId(): Unknown state: " + state);
+            throw new IllegalArgumentException("Unknown state: " + state);
+        });
         return bookingClient.getBookingItemByOwnerId(state, ownerId, from, size);
     }
 

@@ -14,7 +14,7 @@ import java.util.Collection;
 @Data
 @Builder
 public class ItemDto {
-    Collection<CommentDto> comments;
+    private Collection<CommentDto> comments;
     private Long id;
     private String name;
     private String description;
@@ -28,10 +28,10 @@ public class ItemDto {
     @Data
     @Builder
     public static class LastOrNextBooking {
-        Long id;
-        Long bookerId;
-        LocalDateTime start;
-        LocalDateTime end;
+        private Long id;
+        private Long bookerId;
+        private LocalDateTime start;
+        private LocalDateTime end;
     }
 
     @Data
