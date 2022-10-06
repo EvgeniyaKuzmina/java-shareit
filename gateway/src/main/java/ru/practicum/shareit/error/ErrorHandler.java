@@ -13,7 +13,6 @@ import ru.practicum.shareit.exception.ValidationException;
 import javax.validation.ConstraintViolationException;
 import java.util.List;
 
-// класс для отлова исключений при выполнении кода
 @RestControllerAdvice
 public class ErrorHandler {
 
