@@ -13,6 +13,7 @@ import ru.practicum.shareit.exception.ValidationException;
 import javax.validation.ConstraintViolationException;
 import java.util.List;
 
+// класс для отлова исключений при выполнении кода
 @RestControllerAdvice
 public class ErrorHandler {
 
@@ -38,7 +39,7 @@ public class ErrorHandler {
     public ErrorResponse handlerArgumentNotValidException(ArgumentNotValidException e) {
         return new ErrorResponse(e.getMessage());
     }
-    
+
     @ExceptionHandler(MissingRequestHeaderException.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public ErrorResponse handlerMissingRequestHeaderException(MissingRequestHeaderException e) {
