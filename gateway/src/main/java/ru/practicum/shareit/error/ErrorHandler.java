@@ -38,13 +38,6 @@ public class ErrorHandler {
     public ErrorResponse handlerArgumentNotValidException(ArgumentNotValidException e) {
         return new ErrorResponse(e.getMessage());
     }
-
-   /* @ExceptionHandler(ConflictException.class)
-    @ResponseStatus(HttpStatus.CONFLICT)
-    public ErrorResponse handlerConflictException(ConflictException e) {
-        return new ErrorResponse(e.getMessage());
-    }*/
-
     @ExceptionHandler(MissingRequestHeaderException.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public ErrorResponse handlerMissingRequestHeaderException(MissingRequestHeaderException e) {
