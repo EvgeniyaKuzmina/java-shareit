@@ -1,4 +1,5 @@
 # java-shareit
+SpringBoot, Maven, Lombok, PostgreSQL, Docker, Hibernate
 ## Service for sharing
 
 ### Application has next actions:
