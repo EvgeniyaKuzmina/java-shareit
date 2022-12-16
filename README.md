@@ -26,3 +26,6 @@ The service provides the following opportunities:
 - get all Items owner
 - get Item by id
 - get Item by part of name or description
+
+
+To deploy an application based on a docker container, use the command docker-compose up
